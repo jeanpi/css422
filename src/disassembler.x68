@@ -48,10 +48,10 @@ start             move.b  #14,d0                  ;Display feedMe header
 
 processNextInstruction   
 ;Check if we need to scroll the screen         
-;Write line in good buffer
-;Clear 
+;convert line good buffer from hex to ascii and write to STD OUT 
+;Clear good buffer 
 ;Check if we have reached the end of the test program 
-
+;If so, prompt for next memory location
 ;Write next instruction address to good buffer 
 
 ******************  START OP-CODE HERE ***************************
@@ -119,7 +119,7 @@ invalidAddress
                   bra     finished
 
 finished
-end               SIMHALT                                       ; halt simulator
+                  SIMHALT                                       ; halt simulator
   
 * Put variables and constants here
 
