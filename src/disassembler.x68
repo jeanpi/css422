@@ -7,9 +7,7 @@
 
                   ORG     $1000     
 
-
-
-stack             EQU     $8000
+stack             EQU     $FFFFFFFF
 
 ************* Program code **************
 
@@ -25,22 +23,31 @@ start         move.b  #14,d0                  ;Display feedMe header
               trap    #15     
               move.l  (a1),d1 
               move.b  #4,d7                   ;Set up loop counter
-              movem.l d1/d7,-(SP)             ;pass in chars and registers
 
-              bra     charsToHex
-              movea.l  d2,a6
+              jsr     charsToHex              ;Convert ascii to hex
+              swap    d3
+              movea.l d3,a6                  ;Store start address in a6
 
               move.b  #14,d0                  ;Ask for the ending address of user's program
               lea     getEndMsg,a1
               trap    #15
 
-     ;         move.b  #14,d0                  ;Ask for the ending address of user's program
-     ;         lea     userStart,a1
-     ;         trap    #15
+              move.b  #2,d0                   ;Store the starting address of the users assembled program in a1
+              trap    #15     
+              move.l  (a1),d1 
+              move.b  #4,d7                   ;Set up loop counter
 
-     ;         move.b  #14,d0                  ;Ask for the ending address of user's program
-     ;         lea     #userEnd,a1
-     ;         trap    #15
+              jsr     charsToHex              ;Convert ascii to hes
+              swap    d3
+              movea.l d3,a5                  ;Store end address in a6 
+
+     ;         move.b #14,d0                  ;Ask for the ending address of user's program
+     ;         lea    userStart,a1
+     ;         trap   #15
+
+     ;         move.b #14,d0                  ;Ask for the ending address of user's program
+     ;         lea    #userEnd,a1
+     ;         trap   #15
 
 ;              move.b  #14,d0                  ;Ask for the ending address of user's program
 ;              move.l  userStart,d1
@@ -52,49 +59,63 @@ start         move.b  #14,d0                  ;Display feedMe header
                   trap    #15
 
 ; This function requires that d7 be loaded with an integer representing the number of chars to convert
+; And d1 contains the chars to be converted
+; And d2 will be saved off onto the stack
+
 charsToHex   
-              move.b  d1,d2                   ;Move this char into d2
+              move.b  d1,d3                   ;Move this char into d2
               lsr.l   #8,d1                   ;Shift to be ready to read next char in d1
-              bra     isValidAscii            ;Determines whether the inputed ascii is valid
-              cmp.b   #asciiNineInHex,d2      ;Check if the char is a digit or
+              jsr     isValidAscii            ;Determines whether the inputed ascii is valid
+              cmp.b   #asciiNineInHex,d3      ;Check if the char is a digit or
               ble     digitInD2ToHex          ;convert the char to actual value of digit
-              ble     LetterInD2ToHex         ;convert the char to actual value of digit
+              bra     LetterInD2ToHex         ;convert the char to actual value of hex letter
 
 nextChar
-              rol.b   #8,d2                   ;Rotate bits to make room for next conversion
+              ror.l   #4,d3                   ;Rotate bits to make room for next conversion
               sub.b   #1,d7                   ;Subtract one from the loop counter
               cmp.b   #0,d7
               bgt     charsToHex              ;Loop until we translate all 4 chars to hex
+              rts
                
 digitInD2ToHex
-              movem.l d3-d5,-(SP)             ;save-off required registers
-              subi.b   #asciiZeroInHex,d2
-              movem.l (SP)+,d3-d5             ;bring back saved data registers
+              movem.l d2,-(SP)             ;save-off required registers
+              subi.b  #asciiZeroInHex,d3
+              movem.l (SP)+,d2             ;bring back saved data registers
               bra     nextChar
 
 LetterInD2ToHex
-              subi.b   #asciiAInHex,d2
+              subi.b  #asciiCharToHex,d3
               bra     nextChar
 
 isValidAscii  
-              cmp.b   #asciiZeroInHex,d2       ;Check if the char is valid 
-              blt     invalidAddress          ;If the char is less than '0', it isn't valid
-              cmp.b   #asciiNineInHex,d2       ;Check if the char is valid 
-              bgt     checkIsLessThanA        ;If the char is greater than '9', check if it is also less than 'A' 
-              cmp.b   #asciiFInHex,d2          ;If the char is greater than 'F', it isn't valid
+              jsr     isLessThanZero
+              jsr     isBetweenNineAndA
+              cmp.b   #asciiFInHex,d3          ;If the char is greater than 'F', it isn't valid
               bgt     invalidAddress
               rts 
 
-checkIsLessThanA  
-              cmp.b   #asciiAInHex,d2          ;Check if the first char is valid 
-              blt     invalidAddress          ;If the char is greater than '9' and less than 'A', it isn't valid
+isLessThanZero
+              cmp.b   #asciiZeroInHex,d3       ;Check if the char is valid 
+              blt     invalidAddress
+              rts
+
+isBetweenNineAndA  
+              cmp.b   #asciiNineInHex,d3       ;Check if the first char is valid 
+              bgt     isLessThanA              ;If the char is greater than '9' check if it's also less than 'A'
+              rts
+
+isLessThanA
+              cmp.b   #asciiAInHex,d3         ;Check if the char is valid 
+              blt     invalidAddress          ;If char is less than 'A' 
+              rts
               
 invalidAddress
               move.b  #14,d0                  ;Ask for the starting address of user's program
               lea     inputError,a1
               trap    #15
+              bra     finished
 
-
+finished
 end               SIMHALT                                       ; halt simulator
   
 * Put variables and constants here
@@ -109,7 +130,7 @@ asciiZeroInHex    EQU     $30
 asciiNineInHex    EQU     $39
 asciiAInHex       EQU     $41
 asciiFInHex       EQU     $46
-
+asciiCharToHex    EQU     $37   
 d1ToHex
 
 d1ToAscii
