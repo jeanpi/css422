@@ -45,7 +45,23 @@ start             move.b  #14,d0                  ;Display feedMe header
                   lea     assembly,a1
                   trap    #15
 
-              
+
+processNextInstruction   
+;Check if we need to scroll the screen         
+;Write line in good buffer
+;Clear 
+;Check if we have reached the end of the test program 
+
+;Write next instruction address to good buffer 
+
+******************  START OP-CODE HERE ***************************
+; Determine Opcode, write hex value to good buffer
+
+
+******************  START EA CODE HERE ***************************
+; Determine EA (and Data), write hex values to good buffer 
+
+
 ; This function requires that d7 be loaded with an integer representing the number of chars to convert
 ; And d1 contains the chars to be converted
 
