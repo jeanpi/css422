@@ -1,6 +1,6 @@
-00007000 Starting Address
+00007FF4 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.12.29
-Created On: 5/19/2013 4:10:54 PM
+Created On: 5/28/2013 2:59:25 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : MOVE Test
@@ -9,18 +9,18 @@ Created On: 5/19/2013 4:10:54 PM
 00000000                             5  * Description: Initial test file for testing 
 00000000                             6  *-----------------------------------------------------------
 00000000                             7      
-00007000                             8  START: ORG    $7000         ; first instruction of program
-00007000                             9  
-00007000  383C 0CCC                 10        move.w  #$0CCC,D4
-00007004  3C04                      11        move.w  D4,D6
-00007006                            12        
-00007006                            13  * Put program code here
-00007006                            14  
-00007006  FFFF FFFF                 15      SIMHALT             ; halt simulator
-0000700A                            16  
-0000700A                            17  * Put variables and constants here
-0000700A                            18  
-0000700A                            19      END    START        ; last line of source
+00007FF4                             8        ORG    $7FF4         ; first instruction of program
+00007FF4                             9  
+00007FF4  383C 0CCC                 10  start move.w  #$0CCC,D4
+00007FF8  3C04                      11        move.w  D4,D6
+00007FFA                            12        
+00007FFA                            13  * Put program code here
+00007FFA                            14  
+00007FFA  FFFF FFFF                 15      SIMHALT             ; halt simulator
+00007FFE                            16  
+00007FFE                            17  * Put variables and constants here
+00007FFE                            18  
+00007FFE                            19      end    start        ; last line of source
 
 No errors detected
 No warnings generated
@@ -29,4 +29,4 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-START               7000
+START               7FF4

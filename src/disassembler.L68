@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.12.29
-Created On: 5/28/2013 2:47:19 PM
+Created On: 5/28/2013 2:59:42 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : 68K Disassembler
@@ -11,7 +11,7 @@ Created On: 5/28/2013 2:47:19 PM
 00000000                             7  
 00001000                             8                    ORG     $1000     
 00001000                             9  
-00001000  =00008000                 10  stack             EQU     $8000
+00001000  =FFFFFFFF                 10  stack             EQU     $FFFFFFFF
 00001000                            11  
 00001000                            12  ************* Program code **************
 00001000                            13  
@@ -214,7 +214,7 @@ ISVALIDASCII        1092
 LETTERIND2TOHEX     108C
 LF                  A
 NEXTCHAR            1072
-STACK               8000
+STACK               FFFFFFFF
 START               1000
 USEREND             4002
 USERSTART           4000

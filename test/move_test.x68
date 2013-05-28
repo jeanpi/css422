@@ -5,9 +5,9 @@
 * Description: Initial test file for testing 
 *-----------------------------------------------------------
     
-START: ORG    $7000         ; first instruction of program
+      ORG    $7FF4         ; first instruction of program
 
-      move.w  #$0CCC,D4
+start move.w  #$0CCC,D4
       move.w  D4,D6
       
 * Put program code here
@@ -16,4 +16,4 @@ START: ORG    $7000         ; first instruction of program
 
 * Put variables and constants here
 
-    END    START        ; last line of source
+    end    start        ; last line of source
