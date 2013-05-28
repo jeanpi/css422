@@ -119,7 +119,7 @@ invalidAddress
                   bra     finished
 
 finished
-                  SIMHALT                                       ; halt simulator
+                  stop    SIMHALT                 ; halt simulator
   
 * Put variables and constants here
 
