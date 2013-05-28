@@ -1,0 +1,192 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.12.29
+Created On: 5/28/2013 11:59:06 AM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : 68K Disassembler
+00000000                             3  * Written by : Mem Opt-in
+00000000                             4  * Date       : 05-09-2012
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+00001000                             8                    ORG     $1000     
+00001000                             9  
+00001000                            10  
+00001000                            11  
+00001000  =00008000                 12  stack             EQU     $8000
+00001000                            13  
+00001000                            14  ************* Program code **************
+00001000                            15  
+00001000  103C 000E                 16  start         move.b  #14,d0                  ;Display feedMe header
+00001004  43F9 000011BA             17                lea     feedMe,a1
+0000100A  4E4F                      18                trap    #15
+0000100C                            19  
+0000100C  103C 000E                 20                move.b  #14,d0                  ;Ask for the starting address of user's program
+00001010  43F9 00001110             21                lea     getStartMsg,a1
+00001016  4E4F                      22                trap    #15
+00001018                            23  
+00001018  103C 0002                 24                move.b  #2,d0                   ;Store the starting address of the users assembled program in a1
+0000101C  4E4F                      25                trap    #15     
+0000101E  2211                      26                move.l  (a1),d1 
+00001020  1E3C 0004                 27                move.b  #4,d7                   ;Set up loop counter
+00001024  6000 001C                 28                bra     charsToHex
+00001028  2C42                      29                movea.l  d2,a6
+0000102A                            30  
+0000102A  103C 000E                 31                move.b  #14,d0                  ;Ask for the ending address of user's program
+0000102E  43F9 00001166             32                lea     getEndMsg,a1
+00001034  4E4F                      33                trap    #15
+00001036                            34  
+00001036                            35       ;         move.b  #14,d0                  ;Ask for the ending address of user's program
+00001036                            36       ;         lea     userStart,a1
+00001036                            37       ;         trap    #15
+00001036                            38  
+00001036                            39       ;         move.b  #14,d0                  ;Ask for the ending address of user's program
+00001036                            40       ;         lea     #userEnd,a1
+00001036                            41       ;         trap    #15
+00001036                            42  
+00001036                            43  ;              move.b  #14,d0                  ;Ask for the ending address of user's program
+00001036                            44  ;              move.l  userStart,d1
+00001036                            45  ;              lea     d1,a1
+00001036                            46  ;              trap    #15
+00001036                            47  
+00001036  103C 000E                 48                    move.b  #14,d0                  ;Display disassembled code
+0000103A  43F9 00001503             49                    lea     assembly,a1
+00001040  4E4F                      50                    trap    #15
+00001042                            51  
+00001042                            52  ; This function requires that d7 be loaded with an integer representing the number of chars to convert
+00001042                            53  charsToHex   
+00001042  1401                      54                move.b  d1,d2                   ;Move this char into d2
+00001044  E089                      55                lsr.l   #8,d1                   ;Shift to be ready to read next char in d1
+00001046  6000 002C                 56                bra     isValidAscii            ;Determines whether the inputed ascii is valid
+0000104A  B43C 0039                 57                cmp.b   #asciiNineInHex,d2      ;Check if the char is a digit or
+0000104E  6F00 0010                 58                ble     digitInD2ToHex          ;convert the char to actual value of digit
+00001052  6F00 001A                 59                ble     LetterInD2ToHex         ;convert the char to actual value of digit
+00001056                            60  
+00001056                            61  nextChar
+00001056  E11A                      62                rol.b   #8,d2                   ;Rotate bits to make room for next conversion
+00001058  5307                      63                sub.b   #1,d7                   ;Subtract one from the loop counter
+0000105A  BE3C 0000                 64                cmp.b   #0,d7
+0000105E  6EE2                      65                bgt     charsToHex              ;Loop until we translate all 4 chars to hex
+00001060                            66                 
+00001060                            67  digitInD2ToHex
+00001060  48E7 1C00                 68                movem.l d3-d5,-(SP)             ;save-off required registers
+00001064  0402 0030                 69                subi.b   #asciiZeroInHex,d2
+00001068  4CDF 0038                 70                movem.l (SP)+,d3-d5             ;bring back saved data registers
+0000106C  60E8                      71                bra     nextChar
+0000106E                            72  
+0000106E                            73  LetterInD2ToHex
+0000106E  0402 0041                 74                subi.b   #asciiAInHex,d2
+00001072  60E2                      75                bra     nextChar
+00001074                            76  
+00001074                            77  isValidAscii  
+00001074  B43C 0030                 78                cmp.b   #asciiZeroInHex,d2       ;Check if the char is valid 
+00001078  6D00 001C                 79                blt     invalidAddress          ;If the char is less than '0', it isn't valid
+0000107C  B43C 0039                 80                cmp.b   #asciiNineInHex,d2       ;Check if the char is valid 
+00001080  6E00 000C                 81                bgt     checkIsLessThanA        ;If the char is greater than '9', check if it is also less than 'A' 
+00001084  B43C 0046                 82                cmp.b   #asciiFInHex,d2          ;If the char is greater than 'F', it isn't valid
+00001088  6E00 000C                 83                bgt     invalidAddress
+0000108C  4E75                      84                rts 
+0000108E                            85  checkIsLessThanA  
+0000108E  B43C 0041                 86                cmp.b   #asciiAInHex,d2          ;Check if the first char is valid 
+00001092  6D00 0002                 87                blt     invalidAddress          ;If the char is greater than '9' and less than 'A', it isn't valid
+00001096                            88                
+00001096                            89  invalidAddress
+00001096  103C 000E                 90                move.b  #14,d0                  ;Ask for the starting address of user's program
+0000109A  43F9 000010BA             91                lea     inputError,a1
+000010A0  4E4F                      92                trap    #15
+000010A2                            93  
+000010A2                            94  
+000010A2  FFFF FFFF                 95  end               SIMHALT                                       ; halt simulator
+000010A6                            96    
+000010A6                            97  * Put variables and constants here
+000010A6                            98  
+000010A6  =00004000                 99  userStart         EQU     $4000
+000010A6  =00004002                100  userEnd           EQU     $4002
+000010A6                           101  
+000010A6  =0000000D                102  CR                EQU     $0D
+000010A6  =0000000A                103  LF                EQU     $0A
+000010A6                           104  
+000010A6  =00000030                105  asciiZeroInHex    EQU     $30
+000010A6  =00000039                106  asciiNineInHex    EQU     $39
+000010A6  =00000041                107  asciiAInHex       EQU     $41
+000010A6  =00000046                108  asciiFInHex       EQU     $46
+000010A6                           109  
+000010A6                           110  d1ToHex
+000010A6                           111  
+000010A6                           112  d1ToAscii
+000010A6  48E7 3C00                113                movem.l d2-d5,-(SP)         save-off required registers
+000010AA  303C 000E                114                move    #14,d0              task number into D0
+000010AE  43F8 000D                115                lea     CR,a1             address of string
+000010B2  4E4F                     116                trap    #15                 display return, linefeed
+000010B4  4CDF 003C                117                movem.l (SP)+,d2-d5         bring back saved data registers
+000010B8  4E75                     118                rts                         return
+000010BA                           119  
+000010BA= 0D 0A                    120  inputError    dc.b    CR,LF
+000010BC= 54 68 61 74 20 69 ...    121                dc.b    'That is not a valid address register, please enter a valid hexadecimal address.',CR,LF,CR,LF,0
+00001110                           122  
+00001110= 0D 0A                    123  getStartMsg   dc.b    CR,LF
+00001112= 50 6C 65 61 73 65 ...    124                dc.b    'Please enter the 4 digit hexadecimal start address of your assembled assembly: ',CR,LF,CR,LF,0
+00001166                           125  
+00001166= 0D 0A                    126  getEndMsg     dc.b    CR,LF
+00001168= 50 6C 65 61 73 65 ...    127                dc.b    'Please enter the 4 digit hexadecimal end address of your assembled assembly: ',CR,LF,CR,LF,0
+000011BA                           128  
+000011BA= 0D 0A                    129  feedMe        dc.b                                                                                     CR,LF 
+000011BC= 20 2A 2A 2A 2A 2A ...    130                dc.b    ' ************************************************************************ '    ,CR,LF
+00001208= 2A 20 20 20 20 20 ...    131                dc.b    '*                                                                        *'    ,CR,LF
+00001254= 2A 20 20 36 38 4B ...    132                dc.b    '*  68K68K    68K68K    68K68K    68K6             6        6   68K68K    *'    ,CR,LF
+000012A0= 2A 20 20 38 20 20 ...    133                dc.b    '*  8         8         8         8   8            8 8    8 8   8         *'    ,CR,LF
+000012EC= 2A 20 20 4B 20 20 ...    134                dc.b    '*  K         K         K         K    K           K  K  K  K   K         *'    ,CR,LF
+00001338= 2A 20 20 36 38 4B ...    135                dc.b    '*  68K68K    68K68K    68K68K    6    6           6   66   6   68K68K    *'    ,CR,LF
+00001384= 2A 20 20 38 20 20 ...    136                dc.b    '*  8         8         8         8    8           8        8   8         *'    ,CR,LF
+000013D0= 2A 20 20 4B 20 20 ...    137                dc.b    '*  K         K         K         K   K            K        K   K         *'    ,CR,LF
+0000141C= 2A 20 20 36 20 20 ...    138                dc.b    '*  6         68K68K    68K68K    68K6             6        6   68K68K    *'    ,CR,LF
+00001468= 2A 20 20 20 20 20 ...    139                dc.b    '*                                                                        *'    ,CR,LF
+000014B4= 20 2A 2A 2A 2A 2A ...    140                dc.b    ' ************************************************************************ '    ,CR,LF,CR,LF,0
+00001503                           141  
+00001503= 0D 0A                    142  assembly      dc.b                                                                                      CR,LF
+00001505= 20 2A 2A 2A 2A 2A ...    143                dc.b    ' ************************************************************************* '    ,CR,LF
+00001552= 2A 20 20 20 20 20 ...    144                dc.b    '*                                                                         *'    ,CR,LF
+0000159F= 2A 20 20 20 20 36 ...    145                dc.b    '*    68K     68K6   68K6   68K68K   6        6   68K68    6      6     6  *'    ,CR,LF
+000015EC= 2A 20 20 20 38 20 ...    146                dc.b    '*   8   8   8       8      8        8 8    8 8   8    8   8       8   8   *'    ,CR,LF
+00001639= 2A 20 20 4B 20 20 ...    147                dc.b    '*  K     K   K       K     K        K  K  K  K   K   K    K        K K    *'    ,CR,LF
+00001686= 2A 20 20 36 38 4B ...    148                dc.b    '*  68K68K6    6       6    68K68K   6   66   6   68K6     6         6     *'    ,CR,LF
+000016D3= 2A 20 20 38 20 20 ...    149                dc.b    '*  8     8     8       8   8        8        8   8   8    8         8     *'    ,CR,LF
+00001720= 2A 20 20 4B 20 20 ...    150                dc.b    '*  K     K      K       K  K        K        K   K    K   K         K     *'    ,CR,LF
+0000176D= 2A 20 20 36 20 20 ...    151                dc.b    '*  6     6  68K6    68K6   68K68K   6        6   68K68    68K68K    6     *'    ,CR,LF
+000017BA= 2A 20 20 20 20 20 ...    152                dc.b    '*                                                                         *'    ,CR,LF
+00001807= 20 2A 2A 2A 2A 2A ...    153                dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
+00001857                           154                
+00001857                           155                end  start        ;last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ASCIIAINHEX         41
+ASCIIFINHEX         46
+ASCIININEINHEX      39
+ASCIIZEROINHEX      30
+ASSEMBLY            1503
+CHARSTOHEX          1042
+CHECKISLESSTHANA    108E
+CR                  D
+D1TOASCII           10A6
+D1TOHEX             10A6
+DIGITIND2TOHEX      1060
+END                 10A2
+FEEDME              11BA
+GETENDMSG           1166
+GETSTARTMSG         1110
+INPUTERROR          10BA
+INVALIDADDRESS      1096
+ISVALIDASCII        1074
+LETTERIND2TOHEX     106E
+LF                  A
+NEXTCHAR            1056
+STACK               8000
+START               1000
+USEREND             4002
+USERSTART           4000
