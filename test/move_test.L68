@@ -1,0 +1,32 @@
+00007000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.12.29
+Created On: 5/19/2013 4:10:54 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : MOVE Test
+00000000                             3  * Written by : John Paul Wallway
+00000000                             4  * Date       : 05-08-2013
+00000000                             5  * Description: Initial test file for testing 
+00000000                             6  *-----------------------------------------------------------
+00000000                             7      
+00007000                             8  START: ORG    $7000         ; first instruction of program
+00007000                             9  
+00007000  383C 0CCC                 10        move.w  #$0CCC,D4
+00007004  3C04                      11        move.w  D4,D6
+00007006                            12        
+00007006                            13  * Put program code here
+00007006                            14  
+00007006  FFFF FFFF                 15      SIMHALT             ; halt simulator
+0000700A                            16  
+0000700A                            17  * Put variables and constants here
+0000700A                            18  
+0000700A                            19      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+START               7000

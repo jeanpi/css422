@@ -7,8 +7,8 @@
     
 START: ORG    $7000         ; first instruction of program
 
-      MOVE.B  #55,D2
-      MOVE.B  #55,D3
+      move.w  #$0CCC,D4
+      move.w  D4,D6
       
 * Put program code here
 
