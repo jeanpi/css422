@@ -7,11 +7,13 @@
 
                   ORG     $1000     
 
-stack             EQU     $8000
+stack             EQU     $00FFFFFF
+goodBuffer        EQU     $00F00000
 
 ************* Program code **************
 
-start             move.b  #14,d0                  ;Display feedMe header
+start             movea.l goodBuffer,a4           ;Set up the start of the goodBuffer for outputing instructions
+                  move.b  #14,d0                  ;Display feedMe header
                   lea     feedMe,a1
                   trap    #15
 
@@ -19,7 +21,7 @@ start             move.b  #14,d0                  ;Display feedMe header
                   lea     getStartMsg,a1
                   trap    #15
 
-                  movea.l #0000,a1
+                  movea.l #0000,a1                ;Clear out a1, before use
                   move.b  #2,d0                   ;Store the starting address of the users assembled program in a1
                   trap    #15     
                   move.l  (a1),d1 
@@ -33,7 +35,7 @@ start             move.b  #14,d0                  ;Display feedMe header
                   lea     getEndMsg,a1
                   trap    #15
 
-                  movea.l #0000,a1
+                  movea.l #0000,a1                ;Clear out a1, before use
                   move.b  #2,d0                   ;Store the starting address of the users assembled program in a1
                   trap    #15     
                   move.l  (a1),d1 
@@ -43,14 +45,21 @@ start             move.b  #14,d0                  ;Display feedMe header
                   swap    d3
                   movea.l d3,a5                   ;Store end address in a5 
 
+                  move.b  #11,d0
+                  move.w  $FF00,d1                ;Clear output screen, before beginning output
+                  trap    #15
+
                   move.b  #14,d0                  ;Display disassembled code
                   lea     assembly,a1
                   trap    #15
 
+                  move.b  #14,d3                  ;Set number of lines output to screen equal to ouput-intro message  
+
 
 processNextInstruction   
-;Check if we need to scroll the screen         
-;convert line good buffer from hex to ascii and write to STD OUT 
+                  jsr     checkClearScreen        ;Check if we need to scroll the screen
+
+
 ;Clear good buffer 
 ;Check if we have reached the end of the test program 
 ;If so, prompt for next memory location
@@ -135,7 +144,44 @@ invalidAddress
 *END:         isValidAscii                                          
 **************************************************************************
 
+**************************************************************************
+*BEGIN:         checkClearScreen
+*         Subroutine to clear output screen 
+**************************************************************************
+checkClearScreen  
+                  movem.l a1/d0-d1,-(SP)
+                  
+                  cmp.b   #28,d3                  ;If we've printed more than 28 lines, prompt to clear screen
+                  bgt     promptForInput
+                  rts                             ;Else return to main program 
 
+promptForInput
+                  move.b  #14,d0                  ;Display continue program message, prompt
+                  lea     continueMsg,a1
+                  trap    #15
+
+checkInput                  
+                  move.b  #5,d0                   ;Grab input character
+                  trap    #15
+
+                  cmp.b   $00,d0                  ;Check if user wants to stop the program
+                  beq     finished
+
+                  cmp.b   $0D,d0                  ;If user presses enter, clear screen and continue
+                  beq     clearScreen
+                  bra     checkInput                      ;Only accept exiting program or clearing screen
+
+clearScreen
+                  move.w  $FF00,d1                ;Clear output screen and return to main program
+                  move.b  #11,d0
+                  trap    #15
+                  move.b  #$00,d3                 ;Zero out counter for number-of-lines-printed-to-screen
+                  movem.l (SP)+,a1/d0-d1          ;Put back used registers
+                  rts 
+
+**************************************************************************
+*END:          checkClearScreen                                         
+**************************************************************************
 
 
 * Put variables and constants here
@@ -157,6 +203,9 @@ getStartMsg       dc.b    CR,LF
 
 getEndMsg         dc.b    CR,LF
                   dc.b    'Please enter the 4 digit hexadecimal end address of your assembled assembly: ',CR,LF,CR,LF,0
+
+continueMsg       dc.b    CR,LF
+                  dc.b    'Please press enter to continue, or 0 to terminate the program.',CR,LF,CR,LF,0
 
 feedMe            dc.b                                                                                     CR,LF 
                   dc.b    ' ************************************************************************ '    ,CR,LF
