@@ -53,16 +53,22 @@ start             movea.l goodBuffer,a4           ;Set up the start of the goodB
                   lea     assembly,a1
                   trap    #15
 
-                  move.b  #14,d3                  ;Set number of lines output to screen equal to ouput-intro message  
-
 
 processNextInstruction   
-                  jsr     checkClearScreen        ;Check if we need to scroll the screen
+                  clr.l   d2
+                  move.w  (a6)+,d2 
+                  ;bra     decideOpcode
 
+returnFromEA
+                  jsr     checkClearScreen        ;Check and clear screen needed
+                  jsr     printInstruction                      
+                  
+                  cmpa.w  a5,a6                   ;If there are no more instructions, finish/restart program
+                  beq     finished
+
+                  bra     processNextInstruction
 
 ;Clear good buffer 
-;Check if we have reached the end of the test program 
-;If so, prompt for next memory location
 ;Write next instruction address to good buffer 
 
 ******************  START OP-CODE HERE ***************************
@@ -78,7 +84,7 @@ finished                                  ; branch for end of program
                   SIMHALT                 ; halt simulator
  
 **************************************************************************
-*BEGIN:         charsToHex
+* BEGIN:          charsToHex
 *
 * This function requires that d7 be loaded with an integer representing the number of chars to convert
 * And d1 contains the chars to be converted
@@ -103,15 +109,16 @@ nextChar
                   bgt     charsToHex              ;Loop until we translate all 4 chars to hex
                   rts
 **************************************************************************
-*END:         charsToHex
+* END:            charsToHex
 **************************************************************************
                
 
 
 **************************************************************************
-*BEGIN:         isValidAscii
-*         Subroutine to verify valid hex in ascii                                          
-*    Non-hex addresses are not supported, end program if encountered
+* BEGIN:          isValidAscii
+*
+* Subroutine to verify valid hex in ascii                                          
+* Non-hex addresses are not supported, end program if encountered
 **************************************************************************
 isValidAscii  
                   jsr     isLessThanZero
@@ -141,12 +148,13 @@ invalidAddress
                   trap    #15
                   bra     finished
 **************************************************************************
-*END:         isValidAscii                                          
+* END:             isValidAscii                                          
 **************************************************************************
 
 **************************************************************************
-*BEGIN:         checkClearScreen
-*         Subroutine to clear output screen 
+* BEGIN:           checkClearScreen
+*
+* Subroutine to clear output screen 
 **************************************************************************
 checkClearScreen  
                   movem.l a1/d0-d1,-(SP)
@@ -180,20 +188,110 @@ clearScreen
                   rts 
 
 **************************************************************************
-*END:          checkClearScreen                                         
+* END:            checkClearScreen                                         
 **************************************************************************
+
+
+**************************************************************************
+* BEGIN:          printInstruction
+*
+* Subroutine to print current disassembled instruction in good buffer
+**************************************************************************
+printInstruction
+                  move.w  a6,d3                       ;set up d3 to contain the instruction to print
+                  move.b  #4,d6                       ;Set up loop counter for subroutine, we're printing 4 bytes
+                  jsr     printHexValuesFromD3        ;Print the address of the instruction we are processing
+                  move.b  #tab,(a4)+                  ;add a tab
+
+                  cmp.l   #0,d2                       ;If the long in d2 is negative, we've set the error bit
+                  blt     invalidInstruction
+                  bra     validInstruction
+validInstruction
+                   
+invalidInstruction
+                  move.l  #errorInstruction,(a4)+     ;Add 'DATA' to the good buffer for output
+                  move.b  #tab,(a4)+                  ;add a tab
+
+                  move.w  (a6),d3 
+                  move.b  #4,d6                       ;Set up loop counter for subroutine, we're printing 4 bytes
+                  jsr     printHexValuesFromD3        ;Print the invalid instruction code
+                 
+endPrintInstruction
+                  move.b  #$00,(a4)+
+                  movea.l a4,a1
+                  move.b  #13,d0
+                  trap    #15
+
+                  rts
+
+**************************************************************************
+* END:            printInstruction                                         
+**************************************************************************
+
+**************************************************************************
+* BEGIN:          printHexValuesFromD3
+*
+* Subroutine to print the Hex values stored in d3, the number of bytes (2 hex values)
+* to be printed must be stored in d6, e.g move.b #2,d6 would print the 4 rightmost
+* hex values stored in d3. 
+**************************************************************************
+printHexValuesFromD3
+                  lsr.b   #4,d3                     ;push off rightmost hex character, so we can convert the leftmost char                      
+                  jsr     hexToChar                                                                                                             
+                  move.b  d3,(a4)+                  ;push char onto ouput buffer                                                                
+                                                                                                                                                
+                  move.b  (a6),d3                   ;get the second char of this byte                                                           
+                  lsl.b   #4,d3                     ;push off the leftmost hex character, so we can convert the rightmost char                  
+                  lsr.b   #4,d3                                                                                                                 
+                  adda.w  #1,a2                     ;move to next byte of matrix                                                                
+                  jsr     hexToChar                                                                                                             
+                  move.b  d3,(a4)+                  ;push char onto ouput buffer                                                                
+
+                  subi.b  #1,d6                     ;Subtract one from loop counter, until entire address has been printed 
+                  cmp.b   #0,d6                     ;loop until we have put the whole instruction into good buffer
+                  beq     endInstructionPrint       
+                  bra     printHexValuesFromD3
+
+endInstructionPrint
+                  rts
+                                                                                                                                                
+**************************************************************************
+* END:            printHexValuesFromD3                                         
+**************************************************************************
+
+**************************************************************************
+* BEGIN:          hexToChar
+*
+* Subroutine to print current disassembled instruction in good buffer
+**************************************************************************
+hexToChar                                                                                                   
+        cmp.b   #$9,d3                    ;Check if the char is a digit or                            
+        ble     digitToAscii              ;convert the hex digit to a char                 
+        bra     letterToAscii             ;convert the hex letter to a char
+                                                                                                    
+digitToAscii                                                                                               
+        addi.b  #$30,d3                                                                  
+        rts
+                                                                                                              
+letterToAscii                                                                                            
+        addi.b  #$37,d3                                                                   
+        rts
+
 
 
 * Put variables and constants here
 
 CR                EQU     $0D
 LF                EQU     $0A
+TAB               EQU     $09
 
 asciiZeroInHex    EQU     $30
 asciiNineInHex    EQU     $39
 asciiAInHex       EQU     $41
 asciiFInHex       EQU     $46
 asciiCharToHex    EQU     $37   
+
+errorInstruction  EQU     $44415441       ;ascii bits representing 'DATA'
 
 inputError        dc.b    CR,LF
                   dc.b    'That is not a valid address register. Exiting Program!',CR,LF,CR,LF,0
