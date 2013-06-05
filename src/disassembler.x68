@@ -7,7 +7,7 @@
 
                   ORG     $1000     
 
-stack             EQU     $FFFF00
+SP                EQU     $FFFF00
 goodBuffer        EQU     $FF0000
 
 ************* Program code **************
@@ -69,14 +69,26 @@ returnFromEA
                   jsr     checkClearScreen        ;Check and clear screen needed
                   jsr     printInstruction                      
                   
-                  cmpa.w  a5,a6                   ;If there are no more instructions, finish/restart program
-                  blt     finished
+                  cmpa.l  a6,a5                   ;If there are no more instructions, finish/restart program
+                  blt     runAgain
 
                   movea.l #goodBuffer,a4          ;Set the start of the goodBuffer for outputing instructions
                   bra     processNextInstruction
 
-;Clear good buffer 
-;Write next instruction address to good buffer 
+runAgain
+                  move.b  #14,d0                  ;Display continue program message, prompt
+                  lea     runAgainMsg,a1
+                  trap    #15
+
+                  move.b  #5,d0                   ;Grab input character
+                  trap    #15
+
+                  cmp.b   #$30,d1                 ;Check if user wants to stop the program, entered 0
+                  beq     finished
+
+                  cmp.b   #$31,d1                 ;Check if user wants to stop the program, entered 0
+                  beq     restart
+                 
 
 ******************  START OP-CODE HERE ***************************
 ; Determine Opcode, write hex value to good buffer
@@ -86,6 +98,28 @@ returnFromEA
 ; Determine EA (and Data), write hex values to good buffer 
 
 
+restart
+                  move.b  #11,d0
+                  move.w  #$FF00,d1                ;Clear output screen, before beginning output
+                  trap    #15
+
+                  clr     d0
+                  clr     d1
+                  clr     d2
+                  clr     d3
+                  clr     d4
+                  clr     d5
+                  clr     d6
+                  clr     d7
+
+                  suba.l a0,a0
+                  suba.l a1,a1
+                  suba.l a2,a2
+                  suba.l a3,a3
+                  suba.l a4,a4
+                  suba.l a5,a5
+                  suba.l a6,a6
+                  bra     start
 
 finished                                  ; branch for end of program
                   SIMHALT                 ; halt simulator
@@ -164,11 +198,11 @@ invalidAddress
 * Subroutine to clear output screen 
 **************************************************************************
 checkClearScreen  
-                  movem.l a1/a5-a6/d0-d1/d4/d6,-(SP)
+                  movem.l a1/d0-d1/d4/d6,-(SP)
                   
                   cmp.b   #26,d5                  ;If we've printed more than 28 lines, prompt to clear screen
                   bgt     promptForInput
-                  movem.l (SP)+,a1/a5-a6/d0-d1/d4/d6
+                  movem.l (SP)+,a1/d0-d1/d4/d6
                   rts                             ;Else return to main program 
 
 promptForInput
@@ -197,7 +231,7 @@ clearLineLoop
                   bgt     clearLineLoop
 
                   move.b  #$00,d5                 ;Zero out counter for number-of-lines-printed-to-screen
-                  movem.l (SP)+,a1/a5-a6/d0-d1/d4/d6
+                  movem.l (SP)+,a1/d0-d1/d4/d6
                   rts 
 
 **************************************************************************
@@ -350,6 +384,9 @@ getStartMsg       dc.b    CR,LF
 
 getEndMsg         dc.b    CR,LF
                   dc.b    'Please enter the 4 digit hexadecimal end address of your assembled assembly: ',CR,LF,CR,LF,0
+
+runAgainMsg       dc.b    CR,LF
+                  dc.b    'Please press 1 to enter new assembled instruction addresses, or 0 to terminate the program.',CR,LF,CR,LF,0
 
 continueMsg       dc.b    CR,LF
                   dc.b    'Please press enter to continue, or 0 to terminate the program.',CR,LF,CR,LF,0
