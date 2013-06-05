@@ -70,9 +70,9 @@ returnFromEA
                   jsr     printInstruction                      
                   
                   cmpa.w  a5,a6                   ;If there are no more instructions, finish/restart program
-                  bgt     finished
+                  blt     finished
 
-                  movea.l #goodBuffer,a4
+                  movea.l #goodBuffer,a4          ;Set the start of the goodBuffer for outputing instructions
                   bra     processNextInstruction
 
 ;Clear good buffer 
@@ -164,11 +164,11 @@ invalidAddress
 * Subroutine to clear output screen 
 **************************************************************************
 checkClearScreen  
-                  movem.l a1/d0-d1/d4-d6,-(SP)
+                  movem.l a1/a5-a6/d0-d1/d4/d6,-(SP)
                   
-                  cmp.b   #28,d5                  ;If we've printed more than 28 lines, prompt to clear screen
+                  cmp.b   #26,d5                  ;If we've printed more than 28 lines, prompt to clear screen
                   bgt     promptForInput
-                  movem.l (SP)+,a1/d0-d1/d4-d6
+                  movem.l (SP)+,a1/a5-a6/d0-d1/d4/d6
                   rts                             ;Else return to main program 
 
 promptForInput
@@ -180,33 +180,24 @@ checkInput
                   move.b  #5,d0                   ;Grab input character
                   trap    #15
 
-                  cmp.b   $00,d0                  ;Check if user wants to stop the program
+                  cmp.b   #$30,d1                 ;Check if user wants to stop the program, entered 0
                   beq     finished
 
-                  cmp.b   $0D,d0                  ;If user presses enter, clear screen and continue
-                  beq     clearScreen
+                  move.b  #28,d4                  ;Set clearLineLoop counter
+                  cmp.b   #$0D,d1                 ;If user presses enter, clear screen and continue, entered 'CR'
+                  beq     clearLineLoop
                   bra     checkInput              ;Only accept exiting program or clearing screen
-
-clearScreen
-                  move.w  #$FF00,d1                ;Clear output screen and return to main program
-                  move.b  #11,d0
-                  trap    #15
-                  move.b  #30,d4                  ;Set clearLineLoop counter
 
 clearLineLoop
                   move.b  #14,d0
                   lea     emptyLine,a1
                   trap    #15
                   subi.b  #1,d4
-                  cmp     #0,d4
+                  cmp     #1,d4
                   bgt     clearLineLoop
 
-                  move.w  $FF00,d1                ;Clear output screen and return to main program
-                  move.b  #11,d0
-                  trap    #15
-
                   move.b  #$00,d5                 ;Zero out counter for number-of-lines-printed-to-screen
-                  movem.l (SP)+,a1/d0-d1/d5-d6    ;Put back used registers
+                  movem.l (SP)+,a1/a5-a6/d0-d1/d4/d6
                   rts 
 
 **************************************************************************
@@ -221,7 +212,6 @@ clearLineLoop
 **************************************************************************
 printInstruction
                   movem.l d0/d3-d4/d6,-(SP)
-                  movea.l a6,a5                       ;get the instruction address to print
                   move.l  a3,d4                       ;get the instruction address to print
                   move.b  #2,d6                       ;Set up loop counter for subroutine, we're printing 2 bytes
                   jsr     pushHexValuesFromD3         ;Print the address of the instruction we are processing
@@ -353,7 +343,7 @@ asciiT            EQU     $54
 inputError        dc.b    CR,LF
                   dc.b    'That is not a valid address register. Exiting Program!',CR,LF,CR,LF,0 
 
-emptyLine         dc.b    '33333333333333333333333333333333333333333333333333333333333333333333333',CR,LF,0
+emptyLine         dc.b    '',CR,LF,0
 
 getStartMsg       dc.b    CR,LF
                   dc.b    'Please enter the 4 digit hexadecimal start address of your assembled assembly: ',CR,LF,CR,LF,0
