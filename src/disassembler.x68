@@ -13,6 +13,7 @@ goodBuffer        EQU     $FF0000
 ************* Program code **************
 
 start             movea.l #goodBuffer,a4          ;Set up the start of the goodBuffer for outputing instructions
+                  LEA     jmp_table,a2     
                   move.b  #14,d0                  ;Display feedMe header
                   lea     feedMe,a1
                   trap    #15
@@ -92,6 +93,163 @@ runAgain
 
 ******************  START OP-CODE HERE ***************************
 ; Determine Opcode, write hex value to good buffer
+
+                move.b	#12,d1
+				move.w	d2,d3
+				LSR.W	D1,D3				;get the first 4 bits of the instruction
+				MULU	#6, d3
+				jsr     0(A2, D3)
+				
+******************  0001 ***************************
+writeMoveByte            	    							
+				move.l  #$4d4f5645, (a4)+   ;print ASCII value of MOVE.B into the good buffer
+				move.w  #$2e42, (a4)+
+                clr.l   d3
+                clr.l   d4
+                jsr    moveByteEA       
+******************  0010 ***************************
+writeMoveLong
+				;move.l	#$00000000, d3			;check if MOVEA or MOVE
+				move.w	d2, d3
+				move.b	#23, d4
+				lsl.l	d4, d3
+				
+				move.l	#29, d4
+				lsr.l	d4,d3				
+				
+				cmp.b	#%001, d3
+				beq	    writeMoveALong
+                clr.l   d3
+                clr.l   d4
+				move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
+				move.w	#$2e4c,	(a4)+
+				jsr		moveLongEA			;jump to EA person's subroutine for MOVE.L
+				
+writeMoveALong
+                clr.l   d3
+                clr.l   d4
+				move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+				move.w	#$412e, (a4)+
+				move.b	#$4c,	(a4)+
+				
+				jsr		moveALongEA 			;jump to EA person's subroutine for MOVE.L	
+
+******************  0011 ***************************	    	
+writeMoveWord    
+				;move.l	#$00000000, d3			;check if MOVEA or MOVE
+				move.w	d2, d3
+				move.b	#23, d4
+				lsl.l	d4, d3
+				
+				move.l	#29, d4
+				lsr.l	d4,d3				
+				
+				cmp.b	#%001, d3
+				beq	    writeMoveAWord
+                clr.l   d3
+                clr.l   d4
+				move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
+				move.w	#$2e57,	(a4)+   
+				jsr	moveWordEA			;jump to EA person's subroutine for MOVE.W
+				
+writeMoveAWord
+                clr.l   d3
+                clr.l   d4
+				move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+				move.w	#$412e, (a4)+
+				move.b	#$57,	(a4)+	    			
+                jsr	    moveAWordEA			;jump to EA person's subroutine for MOVEA.W 
+******************  0100 ***************************    
+writeLEA
+                move.w	d2, d3
+				move.b	#23, d4
+				lsl.l	d4, d3
+				
+				move.l	#29, d4
+				lsr.l	d4,d3				
+				
+				cmp.b	#%111, d3
+				beq     writeRTS
+				clr.l   d3
+				clr.l   d4
+				move.w  #$4c45, (a4)+   
+				move.b  #$41, (a4)+
+               ;jsr      leaEA
+                
+writeRTS
+                clr.l   d3
+                clr.l   d4    
+                move.w  #$5242, (a4)+
+                move.b  #$53, (a4)_+
+                ;jsr     rtsEA               
+ 
+******************  OP-CODE JUMP TABLE ***************************
+; Determine Opcode, write hex value to good buffer
+
+jmp_table      JMP         code0000
+
+               JMP         code0001
+
+               JMP         code0010
+
+               JMP         code0011
+
+               JMP         code0100
+
+               JMP         code0101
+
+               JMP         code0110
+
+               JMP         code0111
+
+               JMP         code1000
+
+               JMP         code1001
+
+               JMP         code1010
+
+               JMP         code1011
+
+               JMP         code1100
+
+               JMP         code1101
+
+               JMP         code1110
+
+               JMP         code1111
+               
+               
+code0000       STOP        #$2700
+
+code0001       BRA         writeMoveByte    
+
+code0010       BRA         writeMoveLong
+
+code0011       BRA         writeMoveWord  
+
+code0100       STOP        #$2700
+
+code0101       STOP        #$2700
+
+code0110       STOP        #$2700
+
+code0111       STOP        #$2700
+
+code1000       STOP        #$2700
+
+code1001       STOP        #$2700
+
+code1010       STOP        #$2700
+
+code1011       STOP        #$2700  
+
+code1100       STOP        #$2700
+
+code1101       STOP        #$2700
+
+code1110       STOP        #$2700
+
+code1111       STOP        #$2700
 
 
 ******************  START EA CODE HERE ***************************
@@ -416,6 +574,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 *~Font name~Courier New~
 *~Font size~10~
 *~Tab type~1~
