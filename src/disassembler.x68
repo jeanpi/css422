@@ -126,11 +126,14 @@ decideOpcode
                 
 ******************  0001 ***************************
 writeMoveByte            	    							
-                  move.l  #$4d4f5645, (a4)+   ;print ASCII value of MOVE.B into the good buffer
-                  move.w  #$2e42, (a4)+
+                  ;move.l  #$4d4f5645, (a4)+   ;print ASCII value of MOVE.B into the good buffer
+                  jsr     pushMoveToBuffer
+                  move.b  #$2e, (a4)+
+                  move.b  #$42, (a4)+
                   clr.l   d3
                   clr.l   d4
                   jsr     moveByteEA       
+
 ******************  0010 ***************************
 writeMoveLong
                   ;move.l	#$00000000, d3			;check if MOVEA or MOVE
@@ -145,14 +148,16 @@ writeMoveLong
                   beq	    writeMoveALong
                   clr.l   d3
                   clr.l   d4
-                  move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
-                  move.w	#$2e4c,	(a4)+
+                  jsr     pushMoveToBuffer
+                  ;move.l  #$4d4f5645, (a4)+   ;print ASCII value of MOVE.B into the good buffer
+                  move.b	#$2e,	(a4)+
+                  move.b	#$4c,	(a4)+
                   jsr 		moveLongEA			;jump to EA person's subroutine for MOVE.L
 				
 writeMoveALong
                   clr.l   d3
                   clr.l   d4
-                  move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+                  ;move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
                   move.w	#$412e, (a4)+
                   move.b	#$4c,	(a4)+
 				
@@ -172,15 +177,19 @@ writeMoveWord
                   beq	    writeMoveAWord
                   clr.l   d3
                   clr.l   d4
-                  move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
-                  move.w	#$2e57,	(a4)+   
+                  jsr     pushMoveToBuffer
+                  ;move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
+                  move.b	#$2e,	(a4)+ 
+                  move.b  #$57,	(a4)+   
                   jsr	    moveWordEA			;jump to EA person's subroutine for MOVE.W
 				
 writeMoveAWord
                   clr.l   d3
                   clr.l   d4
-                  move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVEA.L into the good buffer
-                  move.w	#$412e, (a4)+
+                  ;move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+                  jsr     pushMoveToBuffer
+                  move.b	#$41, (a4)+
+                  move.b	#$2e, (a4)+
                   move.b	#$57,	(a4)+	    			
                   jsr	    moveAWordEA			;jump to EA person's subroutine for MOVEA.W 
 ******************  0100 ***************************    
@@ -196,17 +205,26 @@ writeLEA
                   beq     writeRTS
                   clr.l   d3
                   clr.l   d4
-                  move.w  #$4c45, (a4)+   
+                  move.b  #$4c, (a4)+   
+                  move.b  #$45, (a4)+   
                   move.b  #$41, (a4)+
                   ;jsr      leaEA
                 
 writeRTS
                   clr.l   d3
                   clr.l   d4    
-                  move.w  #$5242, (a4)+
+                  move.b  #$52, (a4)+
+                  move.b  #$42, (a4)+
                   move.b  #$53, (a4)+
                   ;jsr     rtsEA               
  
+pushMoveToBuffer
+                  move.b	#$4d, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+                  move.b  #$4f, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+                  move.b  #$56, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+                  move.b  #$45, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+                  rts
+
 ******************  OP-CODE JUMP TABLE ***************************
 ; Determine Opcode, write hex value to good buffer
 
@@ -714,8 +732,10 @@ printInstruction
                   jsr     pushHexValuesFromD3         ;Print the address of the instruction we are processing
                   move.b  #tab,(a4)+                  ;add a tab
 
+                  movem.l (SP)+,d0/d3-d4/d6
                   bra     decideOpcode
 returnFromEA
+                  movem.l d0/d3-d4/d6,-(SP)
                   cmp.l   #0,d2                       ;If the long in d2 is negative, we've set the error bit
                   blt     invalidInstruction
                   bra     endPrintInstruction
@@ -732,7 +752,7 @@ invalidInstruction
                   jsr     pushHexValuesFromD3         ;Print the invalid instruction code
                  
 endPrintInstruction
-                  move.b  #null,(a4)+                 ;Add null to terminate string
+                  move.b  #$00,(a4)+                 ;Add null to terminate string
                   movea.l #goodBuffer,a1
                   move.b  #13,d0                      ;Task 13 prints the null terminated string in a1
                   trap    #15
