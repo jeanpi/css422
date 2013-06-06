@@ -7,7 +7,7 @@
     
       ORG    $7FF4         ; first instruction of program
 
-start move.w  #$0CCC,D4
+start ;move.w  #$0CCC,D4
       move.l  D2, D4
       move.l  A2, D4
       move.w  D4,D6
@@ -21,6 +21,8 @@ start move.w  #$0CCC,D4
 * Put variables and constants here
 
     end    start        ; last line of source
+
+
 
 *~Font name~Courier New~
 *~Font size~10~
