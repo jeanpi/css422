@@ -61,9 +61,7 @@ processNextInstruction
                   clr.l   d2
                   movea.l a6,a3                   ;Store last instruction address in a3 before we increment a6
                   move.w  (a6)+,d2 
-                  bra     decideOpcode
 
-returnFromEA
                   jsr     checkClearScreen        ;Check and clear screen needed
                   jsr     printInstruction                      
                   
@@ -86,99 +84,128 @@ runAgain
 
                   cmp.b   #$31,d1                 ;Check if user wants to stop the program, entered 0
                   beq     restart
-                 
 
-******************  START OP-CODE HERE ***************************
+restart
+                  move.b  #11,d0
+                  move.w  #$FF00,d1                ;Clear output screen, before beginning output
+                  trap    #15
+
+                  clr     d0
+                  clr     d1
+                  clr     d2
+                  clr     d3
+                  clr     d4
+                  clr     d5
+                  clr     d6
+                  clr     d7
+
+                  suba.l a0,a0
+                  suba.l a1,a1
+                  suba.l a2,a2
+                  suba.l a3,a3
+                  suba.l a4,a4
+                  suba.l a5,a5
+                  suba.l a6,a6
+                  bra     start
+
+finished                                  ; branch for end of program
+                  
+        	        SIMHALT                 ; halt simulator
+                  
+ 
+************************************************************************
+************************  START OP-CODE HERE ***************************
+************************************************************************
 ; Determine Opcode, write hex value to good buffer
 decideOpcode
-                move.b	#12,d1
-				move.w	d2,d3
-				LSR.W	D1,D3				;get the first 4 bits of the instruction
-				MULU	#6, d3
-				jsr     0(A2, D3)
-				
+                  move.b	#12,d1
+                  move.w	d2,d3
+                  LSR.W	  D1,D3				;get the first 4 bits of the instruction
+                  MULU	  #6, d3
+                  jsr     0(A2, D3)
+                
 ******************  0001 ***************************
 writeMoveByte            	    							
-				move.l  #$4d4f5645, (a4)+   ;print ASCII value of MOVE.B into the good buffer
-				move.w  #$2e42, (a4)+
-                clr.l   d3
-                clr.l   d4
-                jsr    moveByteEA       
+                  move.l  #$4d4f5645, (a4)+   ;print ASCII value of MOVE.B into the good buffer
+                  move.w  #$2e42, (a4)+
+                  clr.l   d3
+                  clr.l   d4
+                  jsr     moveByteEA       
 ******************  0010 ***************************
 writeMoveLong
-				;move.l	#$00000000, d3			;check if MOVEA or MOVE
-				move.w	d2, d3
-				move.b	#23, d4
-				lsl.l	d4, d3
-				
-				move.l	#29, d4
-				lsr.l	d4,d3				
-				
-				cmp.b	#%001, d3
-				beq	    writeMoveALong
-                clr.l   d3
-                clr.l   d4
-				move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
-				move.w	#$2e4c,	(a4)+
-				jsr		moveLongEA			;jump to EA person's subroutine for MOVE.L
+                  ;move.l	#$00000000, d3			;check if MOVEA or MOVE
+                  move.w	d2, d3
+                  move.b	#23, d4
+                  lsl.l	  d4, d3
+                  
+                  move.l	#29, d4
+                  lsr.l	  d4,d3				
+                  
+                  cmp.b	  #%001, d3
+                  beq	    writeMoveALong
+                  clr.l   d3
+                  clr.l   d4
+                  move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
+                  move.w	#$2e4c,	(a4)+
+                  jsr 		moveLongEA			;jump to EA person's subroutine for MOVE.L
 				
 writeMoveALong
-                clr.l   d3
-                clr.l   d4
-				move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVEA.L into the good buffer
-				move.w	#$412e, (a4)+
-				move.b	#$4c,	(a4)+
+                  clr.l   d3
+                  clr.l   d4
+                  move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+                  move.w	#$412e, (a4)+
+                  move.b	#$4c,	(a4)+
 				
-				jsr		moveALongEA 			;jump to EA person's subroutine for MOVE.L	
+                  jsr 		moveALongEA 			;jump to EA person's subroutine for MOVE.L	
 
 ******************  0011 ***************************	    	
 writeMoveWord    
-				;move.l	#$00000000, d3			;check if MOVEA or MOVE
-				move.w	d2, d3
-				move.b	#23, d4
-				lsl.l	d4, d3
-				
-				move.l	#29, d4
-				lsr.l	d4,d3				
-				
-				cmp.b	#%001, d3
-				beq	    writeMoveAWord
-                clr.l   d3
-                clr.l   d4
-				move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
-				move.w	#$2e57,	(a4)+   
-				jsr	moveWordEA			;jump to EA person's subroutine for MOVE.W
+                  ;move.l	#$00000000, d3			;check if MOVEA or MOVE
+                  move.w	d2, d3
+                  move.b	#23, d4
+                  lsl.l 	d4, d3
+                  
+                  move.l	#29, d4
+                  lsr.l	  d4,d3				
+                  
+                  cmp.b	  #%001, d3
+                  beq	    writeMoveAWord
+                  clr.l   d3
+                  clr.l   d4
+                  move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
+                  move.w	#$2e57,	(a4)+   
+                  jsr	    moveWordEA			;jump to EA person's subroutine for MOVE.W
 				
 writeMoveAWord
-                clr.l   d3
-                clr.l   d4
-				move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVEA.L into the good buffer
-				move.w	#$412e, (a4)+
-				move.b	#$57,	(a4)+	    			
-                jsr	    moveAWordEA			;jump to EA person's subroutine for MOVEA.W 
+                  clr.l   d3
+                  clr.l   d4
+                  move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVEA.L into the good buffer
+                  move.w	#$412e, (a4)+
+                  move.b	#$57,	(a4)+	    			
+                  jsr	    moveAWordEA			;jump to EA person's subroutine for MOVEA.W 
 ******************  0100 ***************************    
 writeLEA
-                move.w	d2, d3
-				move.b	#23, d4
-				lsl.l	d4, d3
-				
-				move.l	#29, d4
-				lsr.l	d4,d3				
-				
-				cmp.b	#%111, d3
-				beq     writeRTS
-				clr.l   d3
-				clr.l   d4
-				move.w  #$4c45, (a4)+   
-				move.b  #$41, (a4)+
-               ;jsr      leaEA
+                  move.w	d2, d3
+                  move.b	#23, d4
+                  lsl.l	  d4, d3
+                  
+                  move.l	#29, d4
+                  lsr.l	  d4,d3				
+                  
+                  cmp.b 	#%111, d3
+                  beq     writeRTS
+                  clr.l   d3
+                  clr.l   d4
+                  move.w  #$4c45, (a4)+   
+                  move.b  #$41, (a4)+
+                  ;jsr      leaEA
                 
 writeRTS
-                clr.l   d3
-                clr.l   d4    
-                move.w  #$5242, (a4)+
-                move.b  #$53, (a4)+
-                ;jsr     rtsEA               
+                  clr.l   d3
+                  clr.l   d4    
+                  move.w  #$5242, (a4)+
+                  move.b  #$53, (a4)+
+                  ;jsr     rtsEA               
  
 ******************  OP-CODE JUMP TABLE ***************************
 ; Determine Opcode, write hex value to good buffer
@@ -249,11 +276,9 @@ code1110       STOP        #$2700
 code1111       STOP        #$2700
 
 
-******************  START EA CODE HERE ***************************
-; Determine EA (and Data), write hex values to good buffer 
-
-        	;SIMHALT             ; halt simulator
-
+************************************************************************
+************************  START EA CODE HERE ***************************
+************************************************************************
 
 **************************************************
 * Subroutines from OP code jump table
@@ -357,30 +382,30 @@ lsrEA       stop    #$2700  ; NOT DONE
 *	d3: Holder for hextoChar
 *	d4: 3 source mode bits
 printMoveSource move.l	d2,d4
-			    move.b	#26,d5
-			    lsl.l	d5,d4
-			    
-			    lsr.l	#8,d4
-			    lsr.l	#8,d4
-			    lsr.l	#8,d4
-			    lsr.l	#5,d4
-			
-			    cmpi.l	#%000,d4	* Data Register Direct
-			    beq     printMoveSourceDRegister
-			    cmpi.l	#%001,d4	* Address Register Direct
-			    beq		printMoveSourceARegister
-			    cmp.b	#%010,d4	* Address Register Indirect
-			    beq		dest
-			    cmp.b	#%011,d4	* Address Register Indirect With Post Incrementing
-			    beq		dest
-			    cmp.b	#%100,d4	* Address Register Indirect With Pre Decrementing
-			    beq		dest
-			    cmp.b	#%101,d4	* Invalid?
-			    beq		invalidEA
-			    cmp.b	#%110,d4	* Invalid?
-			    beq		invalidEA
-			    cmp.b	#%111,d4	* Immediate Data, Absolute Long Address, or Absolute Word Address
-			    beq		dest
+                        move.b	#26,d5
+                        lsl.l	  d5,d4
+                        
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #5,d4
+                    
+                        cmpi.l	#%000,d4	* Data Register Direct
+                        beq     printMoveSourceDRegister
+                        cmpi.l	#%001,d4	* Address Register Direct
+                        beq		  printMoveSourceARegister
+                        cmp.b	  #%010,d4	* Address Register Indirect
+                        beq		  dest
+                        cmp.b	  #%011,d4	* Address Register Indirect With Post Incrementing
+                        beq		  dest
+                        cmp.b	  #%100,d4	* Address Register Indirect With Pre Decrementing
+                        beq		  dest
+                        cmp.b	  #%101,d4	* Invalid?
+                        beq		  invalidEA
+                        cmp.b	  #%110,d4	* Invalid?
+                        beq		  invalidEA
+                        cmp.b	  #%111,d4	* Immediate Data, Absolute Long Address, or Absolute Word Address
+                        beq		  dest
 
 
 **************************************************
@@ -391,33 +416,33 @@ printMoveSource move.l	d2,d4
 *	d4: 3 source mode bits
 
 printMoveDestination    move.l	d2,d5
-			            lsl.l	#7,d5
-		    	        lsl.l	#8,d5
-			            lsl.l	#8,d5
-			
-			            lsr.l	#8,d5
-			            lsr.l	#8,d5
-			            lsr.l	#8,d5
-			            lsr.l	#5,d5
-			            move.b #$77,d0
+                        lsl.l	  #7,d5
+                        lsl.l	  #8,d5
+                        lsl.l	  #8,d5
+            
+                        lsr.l	  #8,d5
+                        lsr.l	  #8,d5
+                        lsr.l	  #8,d5
+                        lsr.l	  #5,d5
+                        move.b  #$77,d0
 
-			            cmp.b	#%000,d5	* Data Register Direct
-			            jsr		printMoveDestinationDRegister
-			            bra     finish
-			            cmp.b	#%001,d5	* Address Register Direct (Invalid)
-			            beq		invalidEA
-			            cmp.b	#%010,d5	* Address Register Indirect
-			            beq		finish
-			            cmp.b	#%011,d5	* Address Register Indirect With Post Incrementing
-			            beq		finish
-			            cmp.b	#%100,d5	* Address Register Indirect With Pre Decrementing
-			            beq		finish
-			            cmp.b	#%101,d5	* Invalid?
-			            beq		invalidEA
-			            cmp.b	#%110,d5	* Invalid?
-			            beq		invalidEA
-			            cmp.b	#%111,d5	* Immediate Data (Invalid), Absolute Long Address, or Absolute Word Address
-			            beq		getData
+                        cmp.b	  #%000,d5	* Data Register Direct
+                        jsr		  printMoveDestinationDRegister
+                        bra     finish
+                        cmp.b	  #%001,d5	* Address Register Direct (Invalid)
+                        beq		  invalidEA
+                        cmp.b	  #%010,d5	* Address Register Indirect
+                        beq		  finish
+                        cmp.b	  #%011,d5	* Address Register Indirect With Post Incrementing
+                        beq		  finish
+                        cmp.b	  #%100,d5	* Address Register Indirect With Pre Decrementing
+                        beq		  finish
+                        cmp.b	  #%101,d5	* Invalid?
+                        beq	  	invalidEA
+                        cmp.b 	#%110,d5	* Invalid?
+                        beq	  	invalidEA
+                        cmp.b 	#%111,d5	* Immediate Data (Invalid), Absolute Long Address, or Absolute Word Address
+                        beq	  	getData
 
 
 **************************************************
@@ -428,7 +453,7 @@ printMoveDestination    move.l	d2,d5
 *	d4: 3 source register bits
 
 printMoveSourceDRegister
-            move.b	#asciiD,(a4)+          * Put a "D" into the good buffer
+      move.b	#asciiD,(a4)+          * Put a "D" into the good buffer
 			
 			jsr     printMoveSourceRegNum
 			
@@ -450,8 +475,6 @@ printMoveDestinationDRegister
 			
 			jsr     printMoveDestinationRegNum
 			
-			move.b  #null,(a4)+      * Put a null at the end
-			
 			rts
 
 
@@ -464,7 +487,7 @@ printMoveDestinationDRegister
 *	d4: 3 source register bits
 
 printMoveSourceARegister
-            move.b	#asciiA,(a4)+   * Put an "A" into the good buffer
+      move.b	#asciiA,(a4)+   * Put an "A" into the good buffer
 			
 			jsr     printMoveSourceRegNum
 			
@@ -486,8 +509,6 @@ printMoveDestinationARegister
 			
 			jsr     printMoveDestinationRegNum
 			
-			move.b  #null,(a4)+      * Put a null at the end
-			
 			rts
 
 
@@ -500,12 +521,12 @@ printMoveDestinationARegister
 printMoveSourceRegNum
 			move.l	d2,d4                   * Put source register into the good buffer
 			move.b	#29,d5
-			lsl.l	d5,d4
+			lsl.l	  d5,d4
 			
-		    lsr.l	#8,d4
-			lsr.l	#8,d4
-			lsr.l	#8,d4
-			lsr.l	#4,d4
+      lsr.l	  #8,d4
+			lsr.l	  #8,d4
+			lsr.l	  #8,d4
+			lsr.l	  #4,d4
 			
 			move.b  d4,d3
 			JSR     hexToChar
@@ -522,12 +543,12 @@ printMoveSourceRegNum
 printMoveDestinationRegNum
 			move.l	d2,d4                   * Put destination register into the good buffer
 			move.b	#20,d5
-			lsl.l	d5,d4
+			lsl.l	  d5,d4
 			
-		    lsr.l	#8,d4
-			lsr.l	#8,d4
-			lsr.l	#8,d4
-			lsr.l	#5,d4
+      lsr.l	  #8,d4
+			lsr.l	  #8,d4
+			lsr.l	  #8,d4
+			lsr.l	  #5,d4
 			
 			move.b  d4,d3
 			JSR     hexToChar
@@ -543,7 +564,7 @@ dest
 * If there is an invalid EA code, set MSB and return
 
 invalidEA	
-		add.l	#80000000, d2
+		add.l	  #80000000, d2
 		bra     returnFromEA
 		
 
@@ -557,40 +578,15 @@ getData
 **************************************************
 * Finish EA
 
-finish		move.b	CR,(a4)+	* Put a carriage return into the good buffer
-			move.b	LF,(a4)+	* Put a line feed into the good buffer
-			bra     returnFromEA
+finish
+          bra     returnFromEA
 
 
 
+************************************************************************
+************************  START IO CODE HERE ***************************
+************************************************************************
 
-restart
-                  move.b  #11,d0
-                  move.w  #$FF00,d1                ;Clear output screen, before beginning output
-                  trap    #15
-
-                  clr     d0
-                  clr     d1
-                  clr     d2
-                  clr     d3
-                  clr     d4
-                  clr     d5
-                  clr     d6
-                  clr     d7
-
-                  suba.l a0,a0
-                  suba.l a1,a1
-                  suba.l a2,a2
-                  suba.l a3,a3
-                  suba.l a4,a4
-                  suba.l a5,a5
-                  suba.l a6,a6
-                  bra     start
-
-finished                                  ; branch for end of program
-                  
-                 ; halt simulator
- 
 **************************************************************************
 * BEGIN:          charsToHex
 *
@@ -718,11 +714,12 @@ printInstruction
                   jsr     pushHexValuesFromD3         ;Print the address of the instruction we are processing
                   move.b  #tab,(a4)+                  ;add a tab
 
+                  bra     decideOpcode
+returnFromEA
                   cmp.l   #0,d2                       ;If the long in d2 is negative, we've set the error bit
                   blt     invalidInstruction
-                  bra     validInstruction
-validInstruction
-                   
+                  bra     endPrintInstruction
+
 invalidInstruction
                   move.b  #asciiD,(a4)+               ;Add 'DATA' to the good buffer for output
                   move.b  #asciiA,(a4)+
@@ -735,7 +732,7 @@ invalidInstruction
                   jsr     pushHexValuesFromD3         ;Print the invalid instruction code
                  
 endPrintInstruction
-                  move.b  #$00,(a4)+                  ;Add null to terminate string
+                  move.b  #null,(a4)+                 ;Add null to terminate string
                   movea.l #goodBuffer,a1
                   move.b  #13,d0                      ;Task 13 prints the null terminated string in a1
                   trap    #15
