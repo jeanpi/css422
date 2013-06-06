@@ -18,9 +18,6 @@ start             movea.l #goodBuffer,a4          ;Set up the start of the goodB
                   lea     feedMe,a1
                   trap    #15
 
-                  move.w  #$1234,$7FF4
-                  move.w  #$AAAA,$7FF8
-
                   move.b  #14,d0                  ;Ask for the starting address of user's program
                   lea     getStartMsg,a1
                   trap    #15
@@ -64,7 +61,7 @@ processNextInstruction
                   clr.l   d2
                   movea.l a6,a3                   ;Store last instruction address in a3 before we increment a6
                   move.w  (a6)+,d2 
-                  ;bra     decideOpcode
+                  bra     decideOpcode
 
 returnFromEA
                   jsr     checkClearScreen        ;Check and clear screen needed
@@ -93,7 +90,7 @@ runAgain
 
 ******************  START OP-CODE HERE ***************************
 ; Determine Opcode, write hex value to good buffer
-
+decideOpcode
                 move.b	#12,d1
 				move.w	d2,d3
 				LSR.W	D1,D3				;get the first 4 bits of the instruction
@@ -180,7 +177,7 @@ writeRTS
                 clr.l   d3
                 clr.l   d4    
                 move.w  #$5242, (a4)+
-                move.b  #$53, (a4)_+
+                move.b  #$53, (a4)+
                 ;jsr     rtsEA               
  
 ******************  OP-CODE JUMP TABLE ***************************
@@ -255,6 +252,317 @@ code1111       STOP        #$2700
 ******************  START EA CODE HERE ***************************
 ; Determine EA (and Data), write hex values to good buffer 
 
+        	;SIMHALT             ; halt simulator
+
+
+**************************************************
+* Subroutines from OP code jump table
+* Check Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+
+* code0000
+addIEA      stop    #$2700  ; NOT DONE
+
+andIEA      stop    #$2700  ; NOT DONE
+
+cmpIEA      stop    #$2700  ; NOT DONE
+
+eorIEA      stop    #$2700  ; NOT DONE
+
+subIEA      stop    #$2700  ; NOT DONE
+
+movePEA     stop    #$2700  ; NOT DONE
+
+* code0001
+moveByteEA  bra     printMoveSource ; NOT DONE
+
+* code0010
+moveLongEA	bra     printMoveSource ; NOT DONE
+
+moveALongEA stop    #$2700  ; NOT DONE
+
+* code0011
+moveWordEA  bra     printMoveSource ; NOT DONE
+
+moveAWordEA stop    #$2700  ; NOT DONE
+
+* code0100
+leaEA       stop    #$2700  ; NOT DONE
+
+rtsEA       stop    #$2700  ; NOT DONE
+
+* code0101
+addQEA      stop    #$2700  ; NOT DONE
+
+subQEA      stop    #$2700  ; NOT DONE
+
+sccQA       stop    #$2700  ; NOT DONE
+
+dbccEA      stop    #$2700  ; NOT DONE
+
+* code0110
+braEA       stop    #$2700  ; NOT DONE
+
+bsrEA       stop    #$2700  ; NOT DONE
+
+bccEA       stop    #$2700  ; NOT DONE
+
+* code0111
+moveQEA     stop    #$2700  ; NOT DONE
+
+* code1000 - nothing??
+
+
+* code1001
+subEA       stop    #$2700  ; NOT DONE
+
+subAEA      stop    #$2700  ; NOT DONE
+
+* code1010 - nothing??
+
+
+* code1011
+eorEA       stop    #$2700  ; NOT DONE
+
+cmpEA       stop    #$2700  ; NOT DONE
+
+cmpAEA      stop    #$2700  ; NOT DONE
+
+* code1100
+andEA       stop    #$2700  ; NOT DONE
+
+* code1101
+addEA       stop    #$2700  ; NOT DONE
+
+addAEA      stop    #$2700  ; NOT DONE
+
+* code1110
+aslEA       stop    #$2700  ; NOT DONE
+
+asrEA       stop    #$2700  ; NOT DONE
+
+lslEA       stop    #$2700  ; NOT DONE
+
+lsrEA       stop    #$2700  ; NOT DONE
+
+* code1111 - nothing??
+
+
+**************************************************
+* moveByte, moveWord, moveLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+printMoveSource move.l	d2,d4
+			    move.b	#26,d5
+			    lsl.l	d5,d4
+			    
+			    lsr.l	#8,d4
+			    lsr.l	#8,d4
+			    lsr.l	#8,d4
+			    lsr.l	#5,d4
+			
+			    cmpi.l	#%000,d4	* Data Register Direct
+			    beq     printMoveSourceDRegister
+			    cmpi.l	#%001,d4	* Address Register Direct
+			    beq		printMoveSourceARegister
+			    cmp.b	#%010,d4	* Address Register Indirect
+			    beq		dest
+			    cmp.b	#%011,d4	* Address Register Indirect With Post Incrementing
+			    beq		dest
+			    cmp.b	#%100,d4	* Address Register Indirect With Pre Decrementing
+			    beq		dest
+			    cmp.b	#%101,d4	* Invalid?
+			    beq		invalidEA
+			    cmp.b	#%110,d4	* Invalid?
+			    beq		invalidEA
+			    cmp.b	#%111,d4	* Immediate Data, Absolute Long Address, or Absolute Word Address
+			    beq		dest
+
+
+**************************************************
+* moveByte, moveWord, moveLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+
+printMoveDestination    move.l	d2,d5
+			            lsl.l	#7,d5
+		    	        lsl.l	#8,d5
+			            lsl.l	#8,d5
+			
+			            lsr.l	#8,d5
+			            lsr.l	#8,d5
+			            lsr.l	#8,d5
+			            lsr.l	#5,d5
+			            move.b #$77,d0
+
+			            cmp.b	#%000,d5	* Data Register Direct
+			            jsr		printMoveDestinationDRegister
+			            bra     finish
+			            cmp.b	#%001,d5	* Address Register Direct (Invalid)
+			            beq		invalidEA
+			            cmp.b	#%010,d5	* Address Register Indirect
+			            beq		finish
+			            cmp.b	#%011,d5	* Address Register Indirect With Post Incrementing
+			            beq		finish
+			            cmp.b	#%100,d5	* Address Register Indirect With Pre Decrementing
+			            beq		finish
+			            cmp.b	#%101,d5	* Invalid?
+			            beq		invalidEA
+			            cmp.b	#%110,d5	* Invalid?
+			            beq		invalidEA
+			            cmp.b	#%111,d5	* Immediate Data (Invalid), Absolute Long Address, or Absolute Word Address
+			            beq		getData
+
+
+**************************************************
+* moveByte, moveWord, moveLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source register bits
+
+printMoveSourceDRegister
+            move.b	#asciiD,(a4)+          * Put a "D" into the good buffer
+			
+			jsr     printMoveSourceRegNum
+			
+			move.b  #comma,(a4)+      * Put a comma into the good buffer
+			
+			bra     printMoveDestination
+			
+
+
+
+**************************************************
+* moveByte, moveWord, moveLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printMoveDestinationDRegister
+			move.b	#asciiD,(a4)+	* Put a "D" into the good buffer
+			
+			jsr     printMoveDestinationRegNum
+			
+			move.b  #null,(a4)+      * Put a null at the end
+			
+			rts
+
+
+
+**************************************************
+* moveByte, moveWord, moveLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source register bits
+
+printMoveSourceARegister
+            move.b	#asciiA,(a4)+   * Put an "A" into the good buffer
+			
+			jsr     printMoveSourceRegNum
+			
+			move.b  #comma,(a4)+   * Put a comma into the good buffer
+			
+			bra     printMoveDestination
+			
+
+
+
+**************************************************
+* moveByte, moveWord, moveLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printMoveDestinationARegister
+			move.b	#asciiA,(a4)+	* Put an "A" into the good buffer
+			
+			jsr     printMoveDestinationRegNum
+			
+			move.b  #null,(a4)+      * Put a null at the end
+			
+			rts
+
+
+**************************************************
+* moveByte, moveWord, moveLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printMoveSourceRegNum
+			move.l	d2,d4                   * Put source register into the good buffer
+			move.b	#29,d5
+			lsl.l	d5,d4
+			
+		    lsr.l	#8,d4
+			lsr.l	#8,d4
+			lsr.l	#8,d4
+			lsr.l	#4,d4
+			
+			move.b  d4,d3
+			JSR     hexToChar
+			move.b  d3,(a4)+
+			rts
+
+
+**************************************************
+* moveByte, moveWord, moveLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printMoveDestinationRegNum
+			move.l	d2,d4                   * Put destination register into the good buffer
+			move.b	#20,d5
+			lsl.l	d5,d4
+			
+		    lsr.l	#8,d4
+			lsr.l	#8,d4
+			lsr.l	#8,d4
+			lsr.l	#5,d4
+			
+			move.b  d4,d3
+			JSR     hexToChar
+			move.b  d3,(a4)+
+			rts
+
+
+**************************************************
+dest
+
+
+**************************************************
+* If there is an invalid EA code, set MSB and return
+
+invalidEA	
+		add.l	#80000000, d2
+		bra     returnFromEA
+		
+
+
+**************************************************
+* If there's data, print it and move a6
+
+getData
+
+
+**************************************************
+* Finish EA
+
+finish		move.b	CR,(a4)+	* Put a carriage return into the good buffer
+			move.b	LF,(a4)+	* Put a line feed into the good buffer
+			bra     returnFromEA
+
+
+
 
 restart
                   move.b  #11,d0
@@ -280,7 +588,8 @@ restart
                   bra     start
 
 finished                                  ; branch for end of program
-                  SIMHALT                 ; halt simulator
+                  
+                 ; halt simulator
  
 **************************************************************************
 * BEGIN:          charsToHex
@@ -515,12 +824,13 @@ letterToAscii
         rts
 
 
-
 * Put variables and constants here
 
 CR                EQU     $0D
 LF                EQU     $0A
 tab               EQU     $09
+comma             EQU     $2C
+null              EQU     $00
 
 asciiZeroInHex    EQU     $30
 asciiNineInHex    EQU     $39
@@ -574,6 +884,9 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
+
+
 
 *~Font name~Courier New~
 *~Font size~10~
