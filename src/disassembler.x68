@@ -582,7 +582,9 @@ dest
 * If there is an invalid EA code, set MSB and return
 
 invalidEA	
-		add.l	  #80000000, d2
+		;add.l	  #80000000, d2
+		clr.l   d2
+		move.l  #$80000000,d2
 		bra     returnFromEA
 		
 
@@ -901,6 +903,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
