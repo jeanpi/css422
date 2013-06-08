@@ -9,10 +9,12 @@
 
 SP                EQU     $FFFF00
 goodBuffer        EQU     $FF0000
+badBuffer         EQU     $FFF000
 
 ************* Program code **************
 
 start             movea.l #goodBuffer,a4          ;Set up the start of the goodBuffer for outputing instructions
+                  movea.l #badBuffer,a0           ;Set up the start of the badBuffer for outputing instructions
                   LEA     jmp_table,a2     
                   move.b  #14,d0                  ;Display feedMe header
                   lea     feedMe,a1
@@ -65,10 +67,12 @@ processNextInstruction
                   jsr     checkClearScreen        ;Check and clear screen needed
                   jsr     printInstruction                      
                   
+checkCompletion
                   cmpa.l  a6,a5                   ;If there are no more instructions, finish/restart program
                   blt     runAgain
 
                   movea.l #goodBuffer,a4          ;Set the start of the goodBuffer for outputing instructions
+                  movea.l #badBuffer,a0           ;Set the start of the badBuffer for outputing instructions
                   bra     processNextInstruction
 
 runAgain
@@ -130,6 +134,7 @@ writeMoveByte
                   jsr     pushMoveToBuffer
                   move.b  #$2e, (a4)+
                   move.b  #$42, (a4)+
+                  move.b  #tab,(a4)+                  ;add a tab
                   clr.l   d3
                   clr.l   d4
                   jsr     moveByteEA       
@@ -152,6 +157,7 @@ writeMoveLong
                   ;move.l  #$4d4f5645, (a4)+   ;print ASCII value of MOVE.B into the good buffer
                   move.b	#$2e,	(a4)+
                   move.b	#$4c,	(a4)+
+                  move.b  #tab,(a4)+                  ;add a tab
                   jsr 		moveLongEA			;jump to EA person's subroutine for MOVE.L
 				
 writeMoveALong
@@ -181,6 +187,7 @@ writeMoveWord
                   ;move.l	#$4d4f5645, (a4)+		;print ASCII value of MOVE.L into the good buffer
                   move.b	#$2e,	(a4)+ 
                   move.b  #$57,	(a4)+   
+                  move.b  #tab,(a4)+                  ;add a tab
                   jsr	    moveWordEA			;jump to EA person's subroutine for MOVE.W
 				
 writeMoveAWord
@@ -191,6 +198,7 @@ writeMoveAWord
                   move.b	#$41, (a4)+
                   move.b	#$2e, (a4)+
                   move.b	#$57,	(a4)+	    			
+                  move.b  #tab,(a4)+                  ;add a tab
                   jsr	    moveAWordEA			;jump to EA person's subroutine for MOVEA.W 
 ******************  0100 ***************************    
 writeLEA
@@ -470,7 +478,7 @@ printMoveDestination    move.b      #comma,(a4)+    * Put a comma into the good 
 *	d4: 3 source register bits
 
 printMoveSourceDRegister
-            move.b  #asciiD,(a4)+          * Put a "D" into the good buffer
+      move.b  #asciiD,(a4)+          * Put a "D" into the good buffer
 			
 			jsr     printMoveSourceRegNum
 			
@@ -636,9 +644,9 @@ printMoveSourceRegNum
 			lsr.l	    #8,d4
 			lsr.l	    #5,d4
 			
-			move.b      d4,d3
-			jsr         hexToCharII
-			move.b      d3,(a4)+
+			move.b      d4,d7
+			jsr         hexToChar
+			move.b      d7,(a4)+
 			rts
 
 
@@ -658,26 +666,10 @@ printMoveDestinationRegNum
 			lsr.l	    #8,d4
 			lsr.l	    #5,d4
 			
-			move.b      d4,d3
-			jsr         hexToCharII
-			move.b      d3,(a4)+
+			move.b      d4,d7
+			jsr         hexToChar
+			move.b      d7,(a4)+
 			rts
-
-
-**************************************************
-* temporary hex-to-char conversion (using d3 instead of d2)
-hexToCharII
-            cmp.b   #$9,d3                    ;Check if the char is a digit or                
-            ble     digitToAscii              ;convert the hex digit to a char                 
-            bra     letterToAscii             ;convert the hex letter to a char
-                                                                                                    
-digitToAscii                                                                                               
-            addi.b  #$30,d3                                                                  
-            rts
-                                                                                                              
-letterToAscii                                                                                            
-            addi.b  #$37,d3                                                                   
-            rts   
 
 
 **************************************************
@@ -787,11 +779,11 @@ invalidAddress
 * Subroutine to clear output screen 
 **************************************************************************
 checkClearScreen  
-                  movem.l a1/d0-d1/d4/d6,-(SP)
+                  movem.l a1/d0/d1/d4/d6,-(SP)
                   
                   cmp.b   #26,d5                  ;If we've printed more than 28 lines, prompt to clear screen
                   bgt     promptForInput
-                  movem.l (SP)+,a1/d0-d1/d4/d6
+                  movem.l (SP)+,a1/d0/d1/d4/d6
                   rts                             ;Else return to main program 
 
 promptForInput
@@ -834,40 +826,49 @@ clearLineLoop
 * Subroutine to print current disassembled instruction in good buffer
 **************************************************************************
 printInstruction
-                  movem.l d0/d3-d4/d6,-(SP)
+                  movem.l d0/d3/d4/d6,-(SP)
                   move.l  a3,d4                       ;get the instruction address to print
                   move.b  #2,d6                       ;Set up loop counter for subroutine, we're printing 2 bytes
-                  jsr     pushHexValuesFromD3         ;Print the address of the instruction we are processing
+                  jsr     pushHexValuesFromD4         ;Print the address of the instruction we are processing
                   move.b  #tab,(a4)+                  ;add a tab
 
-                  movem.l (SP)+,d0/d3-d4/d6
+                  movem.l (SP)+,d0/d3/d4/d6
                   bra     decideOpcode
 returnFromEA
-                  movem.l d0/d3-d4/d6,-(SP)
+                  movem.l d0/d3/d4/d6,-(SP)
                   cmp.l   #0,d2                       ;If the long in d2 is negative, we've set the error bit
                   blt     invalidInstruction
-                  bra     endPrintInstruction
+                  bra     validInstruction
 
 invalidInstruction
-                  move.b  #asciiD,(a4)+               ;Add 'DATA' to the good buffer for output
-                  move.b  #asciiA,(a4)+
-                  move.b  #asciiT,(a4)+
-                  move.b  #asciiA,(a4)+
-                  move.b  #tab,(a4)+                  ;add a tab
+                  move.b  #asciiD,(a0)+               ;Add 'DATA' to the good buffer for output
+                  move.b  #asciiA,(a0)+
+                  move.b  #asciiT,(a0)+
+                  move.b  #asciiA,(a0)+
+                  move.b  #tab,(a0)+                  ;add a tab
 
-                  move.w  (a3),d4                     ;set up d3 to contain the instruction to print 
+                  move.w  (a3),d4                     ;set up d4 to contain the instruction to print 
                   move.b  #2,d6                       ;Set up loop counter for subroutine, we're printing 2 bytes
-                  jsr     pushHexValuesFromD3         ;Print the invalid instruction code
+                  jsr     pushHexValuesFromD4         ;Print the invalid instruction code
                  
-endPrintInstruction
+                  move.b  #$00,(a1)+                  ;Add null to terminate string
+                  movea.l #badBuffer,a1
+                  move.b  #13,d0                      ;Task 13 prints the null terminated string in a1
+                  trap    #15
+                  bra     endPrintInstruction
+
+validInstruction
                   move.b  #$00,(a4)+                 ;Add null to terminate string
                   movea.l #goodBuffer,a1
                   move.b  #13,d0                      ;Task 13 prints the null terminated string in a1
                   trap    #15
+                  bra     endPrintInstruction
+
+endPrintInstruction
 
                   add.b   #1,d5                       ;Add one line to our line-output-counter
-                  movem.l (SP)+,d0/d3-d4/d6
-                  rts
+                  movem.l (SP)+,d0/d3/d4/d6
+                  bra     checkCompletion
 
 **************************************************************************
 * END:            printInstruction                                         
@@ -880,7 +881,7 @@ endPrintInstruction
 * to be printed must be stored in d6, e.g move.b #2,d6 would print the 4 rightmost
 * hex values stored in d4. 
 **************************************************************************
-pushHexValuesFromD3
+pushHexValuesFromD4
                   cmp.b   #4,d6
                   beq     process7thAnd8th
                   cmp.b   #3,d6
@@ -907,45 +908,47 @@ process1stAnd2nd
                   bra     processChars
 
 processChars
-                  move.b  d3,d2
-                  lsr.b   #4,d2                     ;push off rightmost hex character, so we can convert the leftmost char                      
-                  jsr     hexToChar                                                                                                             
-                  move.b  d2,(a4)+                  ;push char onto ouput buffer                                                                
+                  move.b  d3,d7
+                  lsr.b   #4,d7                     ;push off rightmost hex character, so we can convert the leftmost char
+                  jsr     hexToChar
+                  move.b  d7,(a4)+                  ;push char onto ouput buffer
+                  move.b  d7,(a0)+                  ;push char onto bad ouput buffer
                                                                                                                                                 
-                  move.b  d3,d2
-                  lsl.b   #4,d2                     ;push off the leftmost hex character, so we can convert the rightmost char                  
-                  lsr.b   #4,d2                                                                                                                 
-                  jsr     hexToChar                                                                                                             
-                  move.b  d2,(a4)+                  ;push char onto ouput buffer                                                                
+                  move.b  d3,d7
+                  lsl.b   #4,d7                     ;push off the leftmost hex character, so we can convert the rightmost char
+                  lsr.b   #4,d7
+                  jsr     hexToChar
+                  move.b  d7,(a4)+                  ;push char onto ouput buffer
+                  move.b  d7,(a0)+                  ;push char onto bad ouput buffer
 
-                  subi.b  #1,d6                     ;Subtract one from loop counter, until all bytes have been printed 
+                  subi.b  #1,d6                     ;Subtract one from loop counter, until all bytes have been printed
                   cmp.b   #0,d6
-                  beq     endInstructionPrint       
-                  bra     pushHexValuesFromD3
+                  beq     endInstructionPrint
+                  bra     pushHexValuesFromD4
 
 endInstructionPrint
                   rts
                                                                                                                                                 
 **************************************************************************
-* END:            pushHexValuesFromD3                                         
+* END:            pushHexValuesFromD4
 **************************************************************************
 
 **************************************************************************
 * BEGIN:          hexToChar
 *
-* Subroutine to print current disassembled instruction in good buffer
+* Subroutine to convert hex value in d7 into a ascii character
 **************************************************************************
 hexToChar                                                                                                   
-        cmp.b   #$9,d2                    ;Check if the char is a digit or                            
+        cmp.b   #$9,d7                    ;Check if the char is a digit or                            
         ble     digitToAsciiII              ;convert the hex digit to a char                 
         bra     letterToAsciiII             ;convert the hex letter to a char
                                                                                                     
 digitToAsciiII                                                                                               
-        addi.b  #$30,d2                                                                  
+        addi.b  #$30,d7                                                                  
         rts
                                                                                                               
 letterToAsciiII                                                                                            
-        addi.b  #$37,d2                                                                   
+        addi.b  #$37,d7                                                                   
         rts
 
 
