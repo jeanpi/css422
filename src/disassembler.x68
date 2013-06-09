@@ -320,20 +320,18 @@ eorIEA      stop    #$2700  ; NOT DONE
 
 subIEA      stop    #$2700  ; NOT DONE
 
-movePEA     stop    #$2700  ; NOT DONE
-
 * code0001
 moveByteEA  bra     printMoveSource ; NOT DONE
 
 * code0010
 moveLongEA	bra     printMoveSource ; NOT DONE
 
-moveALongEA stop    #$2700  ; NOT DONE
+moveALongEA bra    printMoveSource  ; NOT DONE
 
 * code0011
 moveWordEA  bra     printMoveSource ; NOT DONE
 
-moveAWordEA stop    #$2700  ; NOT DONE
+moveAWordEA bra    printMoveSource  ; NOT DONE
 
 * code0100
 leaEA       stop    #$2700  ; NOT DONE
@@ -455,7 +453,7 @@ printMoveDestination    move.b      #comma,(a4)+    * Put a comma into the good 
                         cmp.b	    #%000,d5	    * Data Register Direct
                         beq		    printMoveDestDRegister
                         cmp.b	    #%001,d5	    * Address Register Direct (Invalid)
-                        beq		    invalidEA
+                        beq		    printMoveDestARegister
                         cmp.b	    #%010,d5	    * Address Register Indirect
                         beq		    printMoveDestAIndRegister
                         cmp.b	    #%011,d5	    * Address Register Indirect With Post Incrementing
@@ -1016,6 +1014,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
