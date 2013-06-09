@@ -127,6 +127,218 @@ decideOpcode
                   LSR.W	  D1,D3				;get the first 4 bits of the instruction
                   MULU	  #6, d3
                   jsr     0(A2, D3)
+******************  0000 ***************************    
+writeImmediate
+                move.w  d2, d3
+                move.b  #20, d4
+                lsl.l   d4, d3
+                clr.l   d4
+                move.b  #28, d4 
+                lsr.l   d4, d3
+                cmp.b   #%0010, d3  
+                beq     writeAndi
+                cmp.b   #%0100, d3 
+                beq     writeSubi
+                cmp.b   #%0110, d3
+                beq     writeAddi
+                cmp.b   #%1010, d3  
+                beq     writeEori
+                cmp.b   #%1100, d3  
+                beq     writeCmpi
+
+
+writeAndi
+                clr.l   d3  
+                clr.l   d4
+                move.l  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeAndiByte
+                cmp.b   #$01, d3
+                beq     writeAndiWord
+                cmp.b   #$02, d3
+                beq     writeAndiLong
+                
+writeAndiByte
+                move.l  #$414e4449, (a4)+
+                move.w  #$2e42, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+               ; jsr     writeAndiByteEA 
+
+writeAndiWord
+                move.l  #$414e4449, (a4)+
+                move.w  #$2e57, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+               ; jsr     writeAndiWordEA     
+
+writeAndiLong               
+                move.l  #$414e4449, (a4)+
+                move.w  #$2e4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+              ;  jsr     writeAndiLongEA  
+
+
+
+   
+writeSubi
+                clr.l   d3  
+                clr.l   d4
+                move.l  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeSubiByte
+                cmp.b   #$01, d3
+                beq     writeSubiWord
+                cmp.b   #$02, d3
+                beq     writeSubiLong
+writeSubiByte
+                move.l  #$53554249, (a4)+
+                move.w  #$2e42, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+              ;  jsr     writeSubiByteEA 
+
+writeSubiWord
+                move.l  #$53554249, (a4)+
+                move.w  #$2e57, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+              ;  jsr     writeSubiWordEA
+
+writeSubiLong
+                move.l  #$53554249, (a4)+
+                move.w  #$2e4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+              ;  jsr     writeSubiLongEA  
+
+
+
+                  
+writeAddi
+                clr.l   d3  
+                clr.l   d4
+                move.l  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeAddiByte
+                cmp.b   #$01, d3
+                beq     writeAddiWord
+                cmp.b   #$02, d3
+                beq     writeAddiLong
+writeAddiByte
+                move.l  #$41444449, (a4)+
+                move.w  #$2e42, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+              ;  jsr     writeAddiByteEA 
+
+writeAddiWord
+                move.l  #$41444449, (a4)+
+                move.w  #$2e57, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+               ; jsr     writeAddiWordEA
+
+writeAddiLong
+                move.l  #$41444449, (a4)+   
+                move.w  #$2e4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+               ; jsr     writeAddiLongEA  
+                  
+
+                
+writeEori
+                clr.l   d3  
+                clr.l   d4
+                move.l  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeEoriByte
+                cmp.b   #$01, d3
+                beq     writeEoriWord
+                cmp.b   #$02, d3
+                beq     writeEoriLong
+writeEoriByte
+                move.l  #$454f5249, (a4)+
+                move.w  #$2e42, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+              ;  jsr     writeEoriByteEA 
+
+writeEoriWord
+                move.l  #$454f5249, (a4)+
+                move.w  #$2e57, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+              ;  jsr     writeEoriWordEA
+
+writeEoriLong
+                move.l  #$454f5249, (a4)+   
+                move.w  #$2e4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+              ;  jsr     writeEoriLongEA  
+                
+                
+                
+writeCmpi
+                clr.l   d3  
+                clr.l   d4
+                move.l  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeCmpiByte
+                cmp.b   #$01, d3
+                beq     writeCmpiWord
+                cmp.b   #$02, d3
+                beq     writeCmpiLong
+writeCmpiByte
+                move.l  #$434d5049, (a4)+
+                move.w  #$2e42, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+               ; jsr     writeCmpiByteEA 
+
+writeCmpiWord
+                move.l  #$434d5049, (a4)+
+                move.w  #$2e57, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+               ; jsr     writeCmpiWordEA
+
+writeCmpiLong
+                move.l  #$434d5049, (a4)+   
+                move.w  #$2e4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeCmpiLongEA				
+
+
                 
 ******************  0001 ***************************
 writeMoveByte            	    							
@@ -233,6 +445,649 @@ pushMoveToBuffer
                   move.b  #$45, (a4)+		;print ASCII value of MOVEA.L into the good buffer
                   rts
 
+
+******************  0101 ***************************       
+writeZeroOneZeroOne   
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d4, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$02, d3
+                beq     writeCCs
+                jsr     writeQs
+                
+writeCCs
+                clr.l   d3
+                clr.l   d4
+                move.w  d2, d3  
+                move.b  #24, d3 
+                clr.l   d4
+                move.b  #27, d4
+                lsr.l   d3,d3
+                cmp.b   #%00011001, d3
+                beq     writeDBcc
+                jsr     writeScc
+                
+writeDBcc
+                clr.l   d3
+                clr.l   d4
+                move.l  #$44426363, (a4)+
+               ; jsr     writeDBccEA                
+
+writeScc
+                clr.l   d3
+                clr.l   d4
+                move.w  #$5363, (a4)+
+                move.b  #$63, (a4)+
+                ;jsr     writeSccEA
+
+writeQs             
+                clr.l   d3
+                clr.l   d4
+                move.w   d2, d3
+                move.b  #23, d4
+                lsl.l   d4, d3
+                clr.l   d4
+                move.b  #31, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeAddq
+                cmp.b   #$01, d3
+                beq     writeSubq
+                jsr     invalidOpcode
+writeAddq
+                clr.l   d3  
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeAddqByte
+                cmp.b   #$01, d3
+                beq     writeAddqWord
+                cmp.b   #$02, d3
+                beq     writeAddqLong
+writeAddqByte
+                move.l  #$41444451, (a4)+   
+                move.w  #$2e42, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeAddqByteEA 
+
+writeAddqWord
+                move.l  #$41444451, (a4)+
+                move.w  #$2e57, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeAddqWordEA
+
+writeAddqLong
+                move.l  #$41444451, (a4)+  
+                move.w  #$2e4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeAddqLongEA	
+                
+                
+                
+writeSubq
+                clr.l   d3  
+                clr.l   d4
+                move.l  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeSubqByte
+                cmp.b   #$01, d3
+                beq     writeSubqWord
+                cmp.b   #$02, d3
+                beq     writeSubqLong
+writeSubqByte
+                move.l  #$53554251, (a4)+   
+                move.w  #$2e42, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeSubqByteEA 
+
+writeSubqWord
+                move.l  #$53554251, (a4)+
+                move.w  #$2e57, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeSubqWordEA
+
+writeSubqLong
+                move.l  #$53554251, (a4)+  
+                move.w  #$2e4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeSubqLongEA	
+
+
+******************  0110 ***************************    
+writeZeroOneOneZero
+                move.w  d2, d3
+                move.b  #20, d4
+                lsl.l   d4, d3
+                clr.l   d4
+                move.b  #28, d4 
+                lsr.l   d4, d3
+                cmp.b   #%0000, d3  
+                beq     writeBra    
+                cmp.b   #%0001, d3  
+                beq     writeBsr
+                jsr     writeBcc    
+                
+writeBra
+                move.w  #$4252, (a4)+   
+                move.b  #$41, (a4)+ 
+                clr.l   d3  
+                clr.l   d4
+               ; jsr     writeBraEA  
+writeBsr
+                move.w  #$4253, (a4)+   
+                move.b  #$52, (a4)+ 
+                clr.l   d3  
+                clr.l   d4  
+                ;jsr     writeBsrEA  
+writeBcc                
+                move.w  #$4263, (a4)+   
+                move.b  #$63, (a4)+ 
+                clr.l   d3      
+                clr.l   d4  
+                ;jsr     writeBccEA  
+
+******************  0111 ***************************    
+writeMoveq
+                move.l  #$4d4f5645, (a4)+   
+                move.b  #$51, (a4)+ 
+                clr.l   d3  
+                clr.l   d4  
+                ;jsr     writeMoveqEA
+
+******************  1000 ***************************    
+;None     
+******************  1001 ***************************    
+writeSubs
+                 clr.l   d3  
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3    
+                beq     writeSubByte
+                cmp.b   #$01, d3
+                beq     writeSubWord
+                cmp.b   #$02, d3
+                beq     writeSubLong 
+                cmp.b   #$03, d3    
+                beq     writeSuba
+                
+writeSubByte
+                move.l   #$5355422e, (a4)+ 
+                move.b  #$42, (a4)+
+                  clr.l       d3  
+                 clr.l       d4
+               ; jsr         writeSubByteEA                  
+  
+
+writeSubWord
+                move.l      #$5355422e, (a4)+   
+                move.b      #$57, (a4)+
+                clr.l       d3  
+                clr.l       d4
+                ;jsr         writeSubWordEA                  
+  
+writeSubLong
+                move.l      #$5355422e, (a4)+   
+                move.b      #$4c, (a4)+
+                clr.l       d3  
+                clr.l       d4
+                ;jsr         writeSubLongEA     
+writeSuba                
+                clr.l   d3
+                clr.l   d4
+                move.w  d2,d3
+                move.b  #23, d4
+                lsl.l   d4,d3
+                clr.l   d4
+                move.b  #31, d4
+                lsr.l   d4,d3                
+                cmp.b   #$00, d3
+                beq     writeSubaWord
+                cmp.b   #$01, d3    
+                beq     writeSubaLong
+writeSubaWord
+                clr.l   d3
+                clr.l   d4
+                move.l  #$53554241, (a4)+
+                move.w  #$2e57, (a4)+
+                ;jsr     writeSubaWordEA 
+writeSubaLong
+                clr.l   d3
+                clr.l   d4
+                move.l  #$53554241, (a4)+
+                move.w  #$2e4c, (a4)+
+               ; jsr     writeSubaLongEA 
+
+
+******************  1011 ***************************           
+writeOneZeroOneOne
+                clr.l   d3  
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3                
+                cmp.b   #$03, d3    
+                beq     writeCmpa
+                clr.l   d3
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #23, d4
+                lsl.l   d4,d3
+                clr.l   d4
+                move.b  #31, d4
+                lsr.l   d4,d3
+                cmp.b   #$00, d3
+                beq     writeCmp
+                jsr     writeEor
+                
+writeCmp
+                clr.l   d3  
+                clr.l   d4
+                move.l  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeCmpByte
+                cmp.b   #$01, d3
+                beq     writeCmpWord
+                cmp.b   #$02, d3
+                beq     writeCmpLong
+writeCmpByte
+                move.l  #$434d502e, (a4)+   
+                move.b  #$42, (a4)+    
+                clr.l   d3  
+                clr.l   d4
+               ; jsr     writeCmpByteEA 
+
+writeCmpWord
+                move.l  #$434d502e, (a4)+   
+                move.b  #$57, (a4)+    
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeCmpWordEA
+
+writeCmpLong
+                move.l  #$434d502e, (a4)+   
+                move.b  #$4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeCmpLongEA                
+   
+                
+writeCmpa                
+                clr.l   d3
+                clr.l   d4
+                move.w  d2,d3
+                move.b  #23, d4
+                lsl.l   d4,d3
+                clr.l   d4
+                move.b  #31, d4
+                lsr.l   d4,d3                
+                cmp.b   #$00, d3
+                beq     writeCmpaWord
+                cmp.b   #$01, d3    
+                beq     writeCmpaLong
+writeCmpaWord
+                 clr.l   d3
+                clr.l   d4
+                move.l  #$434d5041, (a4)+
+                move.w  #$2e57, (a4)+
+                ;jsr     writeCmpaWordEA
+writeCmpaLong
+                clr.l   d3
+                clr.l   d4
+                move.l  #$434d5041, (a4)+
+                move.w  #$2e4c, (a4)+
+                ;jsr     writeCmpaLongEA
+                
+                
+writeEor
+                clr.l   d3  
+                clr.l   d4
+                move.l  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeEorByte
+                cmp.b   #$01, d3
+                beq     writeEorWord
+                cmp.b   #$02, d3
+                beq     writeEorLong
+writeEorByte
+                move.l  #$454f522e, (a4)+    
+                move.b  #$42, (a4)+    
+                clr.l   d3  
+                clr.l   d4
+               ; jsr     writeEorByteEA 
+
+writeEorWord
+                move.l  #$454f522e, (a4)+   
+                move.b  #$57, (a4)+    
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeEorWordEA
+
+writeEorLong
+                move.l  #$454f522e, (a4)+   
+                move.b  #$4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeEorLongEA 
+                
+
+******************  1100 ***************************   
+writeAnds
+                clr.l   d3  
+                clr.l   d4
+                move.l  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeAndByte
+                cmp.b   #$01, d3
+                beq     writeAndWord
+                cmp.b   #$02, d3
+                beq     writeAndLong
+writeAndByte
+                move.l  #$414e442e, (a4)+       
+                move.b  #$42, (a4)+    
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeAndByteEA 
+
+writeAndWord
+                move.l  #$414e442e, (a4)+     
+                move.b  #$57, (a4)+    
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeAndWordEA
+
+writeAndLong
+                move.l  #$414e442e, (a4)+     
+                move.b  #$4c, (a4)+   
+                clr.l   d3  
+                clr.l   d4
+                ;jsr     writeAndLongEA 
+
+******************  1101 ***************************    
+writeAdds
+                clr.l   d3  
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3    
+                beq     writeAddByte
+                cmp.b   #$01, d3
+                beq     writeAddWord
+                cmp.b   #$02, d3
+                beq     writeAddLong 
+                cmp.b   #$03, d3    
+                beq     writeAdda
+                
+writeAddByte
+                move.l      #$5355422e, (a4)+   
+                move.b      #$42, (a4)+
+                clr.l       d3  
+                clr.l       d4
+              ;  jsr         writeAddByteEA                  
+  
+
+writeAddWord
+                move.l      #$5355422e, (a4)+   
+                move.b      #$57, (a4)+
+                clr.l       d3  
+                clr.l       d4
+               ; jsr         writeAddWordEA                  
+  
+writeAddLong
+                move.l      #$5355422e, (a4)+   
+                move.b      #$4c, (a4)+
+                clr.l       d3  
+                clr.l       d4
+                ;jsr         writeAddLongEA     
+writeAdda                
+                move.l      #$53554241, (a4)+
+                clr.l       d3
+                clr.l       d4
+                ;jsr         writeAddaEA
+
+******************  1110 ***************************
+writeOneOneOneZero
+                move.w  d2,d3
+                move.b  #27, d4
+                lsl.l   d4,d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeASd
+                cmp.b   #$01, d3
+                beq     writeLSd
+                jsr     invalidOpcode
+
+writeASd
+                move.w      d2, d3
+                move.b      #23, d4  
+                lsl.l       d4,d3
+                clr.l       d4
+                move.b      #31, d4
+                lsr.l       d4,d3
+                cmp.b       #$00, d3
+                beq         writeAsr
+                jsr         writeAsl
+writeAsr
+                clr.l   d3  
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3    
+                beq     writeAsrByte
+                cmp.b   #$01, d3
+                beq     writeAsrWord
+                cmp.b   #$02, d3
+                beq     writeAsrLong 
+                cmp.b   #$03, d3    
+                beq     invalidOpcode
+                
+                
+writeAsrByte
+                clr.l   d3
+                clr.l   d4
+                move.l       #$4153522e, (a4)+
+                move.b      #$42, (a4)+
+              ;  jsr     writeAsrByteEA
+    
+
+writeAsrWord
+                clr.l   d3
+                clr.l   d4
+                move.l       #$4153522e, (a4)+
+                move.b      #$57, (a4)+
+             ;   jsr     writeAsrWordEA
+writeAsrLong                
+                clr.l   d3
+                clr.l   d4
+                move.l       #$4153522e, (a4)+
+                move.b      #$4c, (a4)+
+              ;  jsr     writeAsrLongEA 
+    
+writeAsl   
+                clr.l   d3  
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3    
+                beq     writeAslByte    
+                cmp.b   #$01, d3
+                beq     writeAslWord    
+                cmp.b   #$02, d3
+                beq     writeAslLong    
+                cmp.b   #$03, d3    
+                beq     invalidOpcode   
+                
+writeAslByte    
+                clr.l   d3
+                clr.l   d4
+                move.l  #$4153522e, (a4)+
+                move.b  #$42, (a4)+
+              ;  jsr     writeAslByteEA
+    
+writeAslWord    
+                clr.l   d3
+                clr.l   d4
+                move.l  #$4153522e, (a4)+
+                move.b  #$57, (a4)+
+              ;  jsr     writeAslWordEA  
+writeAslLong                  
+                clr.l   d3
+                clr.l   d4
+                move.l  #$4153522e, (a4)+
+                move.b  #$4c, (a4)+
+              ;  jsr     writeAslLongEA   
+
+writeLSd                 
+                move.w      d2, d3
+                move.b      #23, d4  
+                lsl.l       d4,d3
+                clr.l       d4
+                move.b      #31, d4
+                lsr.l       d4,d3
+                cmp.b       #$00, d3
+                beq         writeLsr
+                jsr         writeLsl
+             
+writeLsr
+                clr.l   d3  
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3    
+                beq     writeLsrByte    
+                cmp.b   #$01, d3
+                beq     writeLsrWord    
+                cmp.b   #$02, d3
+                beq     writeLsrLong    
+                cmp.b   #$03, d3    
+                beq     invalidOpcode   
+
+
+writeLsrByte    
+                clr.l   d3
+                clr.l   d4
+                move.l  #$4c53522e, (a4)+
+                move.b  #$42, (a4)+
+              ;  jsr     writeLsrByteEA
+    
+writeLsrWord    
+                clr.l   d3
+                clr.l   d4
+                move.l  #$4c53522e, (a4)+
+                move.b  #$57, (a4)+
+              ;  jsr     writeLsrWordEA  
+writeLsrLong                  
+                clr.l   d3
+                clr.l   d4
+                move.l  #$4c53522e, (a4)+
+                move.b  #$4c, (a4)+
+               ; jsr     writeLsrLongEA 
+
+
+writeLsl
+                clr.l   d3  
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d3, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3    
+                beq     writeLslByte    
+                cmp.b   #$01, d3
+                beq     writeLslWord    
+                cmp.b   #$02, d3
+                beq     writeLslLong    
+                cmp.b   #$03, d3    
+                beq     invalidOpcode
+
+writeLslByte    
+                clr.l   d3
+                clr.l   d4
+                move.l  #$4c534c2e, (a4)+
+                move.b  #$42, (a4)+
+               ; jsr     writeLslByteEA
+    
+writeLslWord    
+                clr.l   d3
+                clr.l   d4
+                move.l  #$4c534c2e, (a4)+
+                move.b  #$57, (a4)+
+               ; jsr     writeLslWordEA  
+writeLslLong                  
+                clr.l   d3
+                clr.l   d4
+                move.l  #$4c534c2e, (a4)+
+                move.b  #$4c, (a4)+
+                ;jsr     writeLslLongEA 
+
+
+
+   
+invalidOpcode
+                add.l   #$80000000, d2
+                ;jsr     errorHandling
+
 ******************  OP-CODE JUMP TABLE ***************************
 ; Determine Opcode, write hex value to good buffer
 
@@ -269,37 +1124,37 @@ jmp_table      JMP         code0000
                JMP         code1111
                
                
-code0000       STOP        #$2700
+code0000       BRA         writeImmediate    
 
-code0001       BRA         writeMoveByte    
+code0001       BRA         writeMoveByte        
 
-code0010       BRA         writeMoveLong
+code0010       BRA         writeMoveLong    
 
-code0011       BRA         writeMoveWord  
+code0011       BRA         writeMoveWord    
 
-code0100       STOP        #$2700
+code0100       BRA          writeLea    
 
-code0101       STOP        #$2700
+code0101       BRA         writeZeroOneZeroOne  
 
-code0110       STOP        #$2700
+code0110       BRA         writeZeroOneOneZero  
 
-code0111       STOP        #$2700
+code0111       BRA         writeMoveq       
 
-code1000       STOP        #$2700
+code1000       BRA         invalidOpcode    
 
-code1001       STOP        #$2700
+code1001       BRA         writeSubs
 
-code1010       STOP        #$2700
+code1010       BRA         invalidOpcode       
 
-code1011       STOP        #$2700  
+code1011       BRA         writeOneZeroOneOne    
 
-code1100       STOP        #$2700
+code1100       BRA         writeAnds
 
-code1101       STOP        #$2700
+code1101       BRA         writeAdds       
 
-code1110       STOP        #$2700
+code1110       BRA         writeOneOneOneZero
 
-code1111       STOP        #$2700
+code1111       BRA         invalidOpcode 
 
 
 ************************************************************************
@@ -1014,6 +1869,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
