@@ -27,6 +27,14 @@ start ;move.w  #$0CCC,D4
       eor.w     d0,(a4)
       eor.l     d5,(a3)+
       
+      * add
+      
+      add.b     -(a7),d3
+      add.w     d4,(a5)
+      add.l     a6,d6
+      adda.w    d1,a1
+      adda.l    (a5),a5
+      
       
 * Put program code here
 
@@ -35,6 +43,7 @@ start ;move.w  #$0CCC,D4
 * Put variables and constants here
 
     end    start        ; last line of source
+
 
 
 
