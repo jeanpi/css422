@@ -2070,7 +2070,7 @@ printInstruction
                   movem.l d0/d3/d4/d6,-(SP)
                   move.l  a3,d4                       ;get the instruction address to print
                   move.b  #2,d6                       ;Set up loop counter for subroutine, we're printing 2 bytes
-                  jsr     pushHexValuesFromD4         ;Print the address of the instruction we are processing
+                  jsr     pushD6HexValuesFromD4         ;Print the address of the instruction we are processing
                   move.b  #tab,(a4)+                  ;add a tab
 
                   movem.l (SP)+,d0/d3/d4/d6
@@ -2091,7 +2091,7 @@ invalidInstruction
 
                   move.w  (a3),d4                     ;set up d4 to contain the instruction to print 
                   move.b  #2,d6                       ;Set up loop counter for subroutine, we're printing 2 bytes
-                  jsr     pushHexValuesFromD4         ;Print the invalid instruction code
+                  jsr     pushD6HexValuesFromD4         ;Print the invalid instruction code
                  
                   move.b  #$00,(a1)+                  ;Add null to terminate string
                   movea.l #badBuffer,a1
@@ -2117,13 +2117,13 @@ endPrintInstruction
 **************************************************************************
 
 **************************************************************************
-* BEGIN:          pushHexValuesFromD3
+* BEGIN:          pushD6HexValuesFromD4
 *
 * Subroutine to print the Hex values stored in d4, the number of bytes (2 hex values)
 * to be printed must be stored in d6, e.g move.b #2,d6 would print the 4 rightmost
-* hex values stored in d4. 
+* hex values stored in d4. The number in d6 must be between 1 and 4.  
 **************************************************************************
-pushHexValuesFromD4
+pushD6HexValuesFromD4
                   cmp.b   #4,d6
                   beq     process7thAnd8th
                   cmp.b   #3,d6
@@ -2166,13 +2166,13 @@ processChars
                   subi.b  #1,d6                     ;Subtract one from loop counter, until all bytes have been printed
                   cmp.b   #0,d6
                   beq     endInstructionPrint
-                  bra     pushHexValuesFromD4
+                  bra     pushD6HexValuesFromD4
 
 endInstructionPrint
                   rts
                                                                                                                                                 
 **************************************************************************
-* END:            pushHexValuesFromD4
+* END:            pushD6HexValuesFromD4
 **************************************************************************
 
 **************************************************************************
