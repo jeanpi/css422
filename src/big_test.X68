@@ -35,6 +35,31 @@ start ;move.w  #$0CCC,D4
       adda.w    d1,a1
       adda.l    (a5),a5
       
+      * sub
+      
+      sub.b     -(a7),d3
+      sub.w     d4,(a5)
+      sub.l     a6,d6
+      suba.w    d1,a1
+      suba.l    (a5),a5
+      
+      * rts
+      
+      * lea
+      
+      lea       (a5),a7
+      
+      * and
+      
+      and.b     -(a7),d3
+      and.w     d4,(a5)
+      
+      * asl, asr
+      
+      asr.w     (a4)
+      
+      
+      
       
 * Put program code here
 
@@ -43,6 +68,11 @@ start ;move.w  #$0CCC,D4
 * Put variables and constants here
 
     end    start        ; last line of source
+
+
+
+
+
 
 
 
