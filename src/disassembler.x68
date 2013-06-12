@@ -490,7 +490,7 @@ writeLEA
                   move.b	#' ',	(a4)+
                   move.b	#' ',	(a4)+
                   move.b  #tab,(a4)+                  ;add a tab
-                  ;jsr      leaEA
+                  jsr      leaEA
                 
 writeRTS
                   clr.l   d3
@@ -502,7 +502,7 @@ writeRTS
                   move.b	#' ',	(a4)+
                   move.b	#' ',	(a4)+
                   move.b  #tab,(a4)+                  ;add a tab
-                  ;jsr     rtsEA               
+                  jsr     rtsEA               
  
 pushMoveToBuffer
                   move.b	#$4d, (a4)+		
@@ -774,7 +774,7 @@ writeSubByte
                 move.b   #$42, (a4)+
                 clr.l    d3  
                 clr.l    d4
-               ; jsr     writeSubByteEA                  
+                jsr      subByteEA                  
   
 
 writeSubWord
@@ -783,7 +783,7 @@ writeSubWord
                 move.b      #$57, (a4)+
                 clr.l       d3  
                 clr.l       d4
-                ;jsr         writeSubWordEA                  
+                jsr         subWordEA                  
   
 writeSubLong
                 jsr      pushSubToBuffer
@@ -791,7 +791,7 @@ writeSubLong
                 move.b      #$4c, (a4)+
                 clr.l       d3  
                 clr.l       d4
-                ;jsr         writeSubLongEA     
+                jsr         subLongEA     
 writeSuba                
                 clr.l   d3
                 clr.l   d4
@@ -812,7 +812,7 @@ writeSubaWord
                 move.b  #$41, (a4)+
                 move.b  #$2e, (a4)+
                 move.b  #$57, (a4)+
-                ;jsr     writeSubaWordEA 
+                jsr     subaWordEA 
 writeSubaLong
                 clr.l   d3
                 clr.l   d4
@@ -820,7 +820,7 @@ writeSubaLong
                 move.b  #$41, (a4)+
                 move.b  #$2e, (a4)+
                 move.b  #$4c, (a4)+
-               ; jsr     writeSubaLongEA 
+                jsr     subaLongEA 
 
 
 ******************  1011 ***************************           
@@ -1001,7 +1001,7 @@ writeAndByte
                 move.b  #$42, (a4)+    
                 clr.l   d3  
                 clr.l   d4
-                ;jsr     writeAndByteEA 
+                jsr     andByteEA 
 
 writeAndWord
                 jsr     pushAndToBuffer
@@ -1009,7 +1009,7 @@ writeAndWord
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-                ;jsr     writeAndWordEA
+                jsr     andWordEA
 
 writeAndLong
                 jsr     pushAndToBuffer
@@ -1017,7 +1017,7 @@ writeAndLong
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-                ;jsr     writeAndLongEA 
+                jsr     andLongEA 
 
 ******************  1101 ***************************    
 writeAdds
@@ -1372,51 +1372,49 @@ eorIEA      stop    #$2700  ; NOT DONE
 subIEA      stop    #$2700  ; NOT DONE
 
 * code0001
-moveByteEA  bra     printMoveSource ; NOT DONE
+moveByteEA  bra     printMoveSource
 
 * code0010
-moveLongEA	bra     printMoveSource ; NOT DONE
+moveLongEA	bra     printMoveSource
 
-moveALongEA bra    printMoveSource  ; NOT DONE
+moveALongEA bra     printMoveSource
 
 * code0011
-moveWordEA  bra     printMoveSource ; NOT DONE
+moveWordEA  bra     printMoveSource
 
-moveAWordEA bra    printMoveSource  ; NOT DONE
+moveAWordEA bra     printMoveSource
 
 * code0100
-leaEA       stop    #$2700  ; NOT DONE
+leaEA       bra     printLeaSource
 
-rtsEA       stop    #$2700  ; NOT DONE
+rtsEA       bra     finish
 
 * code0101
 addQEA      stop    #$2700  ; NOT DONE
 
 subQEA      stop    #$2700  ; NOT DONE
 
-sccQA       stop    #$2700  ; NOT DONE
-
-dbccEA      stop    #$2700  ; NOT DONE
-
 * code0110
-braEA       stop    #$2700  ; NOT DONE
-
-bsrEA       stop    #$2700  ; NOT DONE
-
 bccEA       stop    #$2700  ; NOT DONE
 
 * code0111
 moveQEA     stop    #$2700  ; NOT DONE
 
-* code1000 - nothing??
+* code1000 - nothing
 
 
 * code1001
-subEA       stop    #$2700  ; NOT DONE
+subByteEA   bra     printSubSource
 
-subAEA      stop    #$2700  ; NOT DONE
+subWordEA   bra     printSubSource
 
-* code1010 - nothing??
+subLongEA   bra     printSubSource
+
+subaWordEA  bra     printSubSource
+
+subaLongEA  bra     printSubSource
+
+* code1010 - nothing
 
 
 * code1011
@@ -1437,7 +1435,11 @@ cmpAWordEA  bra     printCmpSource
 cmpALongEA  bra     printCmpSource
 
 * code1100
-andEA       stop    #$2700  ; NOT DONE
+andByteEA   bra     printAndSource
+
+andWordEA   bra     printAndSource
+
+andLongEA   bra     printAndSource
 
 * code1101
 addByteEA   bra     printAddSource
@@ -1457,7 +1459,7 @@ lslEA       stop    #$2700  ; NOT DONE
 
 lsrEA       stop    #$2700  ; NOT DONE
 
-* code1111 - nothing??
+* code1111 - nothing
 
 
 **************************************************
@@ -2195,6 +2197,737 @@ printAddDestIIAIndMinRegister
 
 
 **************************************************
+* addByte, addWord, addLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+
+printSubSource
+                        move.l	    d2,d5
+                        lsl.l	    #7,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+            
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #5,d5
+                        move.b      #$77,d0
+
+                        cmp.b	    #%000,d5	    * sub, dest is second operand
+                        beq		    printSubSourceI
+                        cmp.b	    #%001,d5	    * sub, dest is second operand
+                        beq		    printSubSourceI
+                        cmp.b	    #%010,d5	    * sub, dest is second operand
+                        beq		    printSubSourceI
+                        cmp.b	    #%011,d5	    * suba, dest is first operand
+                        beq		    printSubSourceI
+                        cmp.b	    #%100,d5	    * sub, dest is first operand
+                        beq		    printSubSourceII
+                        cmp.b	    #%101,d5	    * sub, dest is first operand
+                        beq	  	    printSubSourceII
+                        cmp.b 	    #%110,d5	    * sub, dest is first operand
+                        beq	  	    printSubSourceII
+                        cmp.b 	    #%111,d5	    * suba, dest is first operand
+                        beq	  	    printSubSourceI
+
+
+**************************************************
+* subByte, subWord, subLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+printSubSourceI         ;clr.l   d2
+                        ;move.l  #$0000161F,d2
+                        move.l	d2,d4
+                        move.b	#26,d5
+                        lsl.l	  d5,d4
+                        
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #5,d4
+                    
+                        cmpi.l	    #%000,d4	    * Data Register Direct
+                        beq         	    printSubSourceIDRegister
+                        cmpi.l	    #%001,d4	    * Address Register Direct
+                        beq		    printSubSourceIARegister
+                        cmp.b	    #%010,d4	    * Address Register Indirect
+                        beq		    printSubSourceIAIndRegister
+                        cmp.b	    #%011,d4	    * Address Register Indirect With Post Incrementing
+                        beq		    printSubSourceIAIndPlusRegister
+                        cmp.b	    #%100,d4	    * Address Register Indirect With Pre Decrementing
+                        beq		    printSubSourceIAIndMinRegister
+                        cmp.b	    #%101,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%110,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%111,d4	    * Immediate Data, Absolute Long Address, or Absolute Word Address
+                        beq         dest
+
+
+**************************************************
+* subByte, subWord, subLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printSubSourceII
+			move.b	#asciiD,(a4)+	* Put a "D" into the good buffer
+			
+			jsr     printDestinationRegNum
+			
+			bra printSubDestinationII
+
+
+**************************************************
+* subByte, subWord, subLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+
+printSubDestinationI    move.b      #comma,(a4)+    * Put a comma into the good buffer
+
+                        move.l	    d2,d5
+                        lsl.l	    #7,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+            
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #5,d5
+                        move.b      #$77,d0
+
+                        cmp.b	    #%000,d5	    * sub
+                        beq		    printSubDestIDRegister
+                        cmp.b	    #%001,d5	    * sub
+                        beq		    printSubDestIDRegister
+                        cmp.b	    #%010,d5	    * sub
+                        beq		    printSubDestIDRegister
+                        cmp.b	    #%011,d5	    * suba
+                        beq		    printSubDestIARegister
+                        cmp.b	    #%100,d5	    * sub
+
+			*** this code isn't necessary ***
+                        beq		    printSubDestIDRegister
+                        cmp.b	    #%101,d5	    * sub
+                        beq	  	    printSubDestIDRegister
+                        cmp.b 	    #%110,d5	    * sub
+                        beq	  	    printSubDestIDRegister
+			*********************************
+
+                        cmp.b 	    #%111,d5	    * suba
+                        beq	  	    printSubDestIARegister
+
+
+**************************************************
+* subByte, subWord, subLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printSubDestIDRegister
+			move.b	#asciiD,(a4)+	* Put a "D" into the good buffer
+			
+			jsr     printDestinationRegNum
+			
+			bra finish
+
+
+**************************************************
+* subByte, subWord, subLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printSubDestIARegister
+			move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+			
+			jsr     printDestinationRegNum
+			
+			bra finish
+
+
+**************************************************
+* subByte, subWord, subLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source register bits
+
+printSubSourceIDRegister
+      move.b  #asciiD,(a4)+          * Put a "D" into the good buffer
+			
+			jsr     printSourceRegNum
+			
+			bra     printSubDestinationI
+
+
+**************************************************
+* subByte, subWord, subLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source register bits
+
+printSubSourceIARegister
+            move.b	#asciiA,(a4)+   * Put an "A" into the good buffer
+			
+			jsr     printSourceRegNum
+			
+			bra     printSubDestinationI
+
+
+**************************************************
+* subByte, subWord, subLong
+* Source
+printSubSourceIAIndRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            bra     printSubDestinationI
+
+
+**************************************************
+* subByte, subWord, subLong
+* Source
+printSubSourceIAIndPlusRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            move.b  #plus,(a4)+         * Put a "+" into the good buffer    
+            
+            bra     printSubDestinationI
+
+
+**************************************************
+* subByte, subWord, subLong
+* Source
+printSubSourceIAIndMinRegister
+            move.b  #minus,(a4)+        * Put a "-" into the good buffer
+
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer    
+            
+            bra     printSubDestinationI
+
+
+**************************************************
+* subByte, subWord, subLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+printSubDestinationII
+			move.b      #comma,(a4)+    * Put a comma into the good buffer
+			;clr.l   d2
+                        ;move.l  #$0000161F,d2
+                        move.l	d2,d4
+                        move.b	#26,d5
+                        lsl.l	  d5,d4
+                        
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #5,d4
+                    
+                        cmpi.l	    #%000,d4	    * Data Register Direct
+                        beq         	    invalidEA
+                        cmpi.l	    #%001,d4	    * Address Register Direct
+                        beq		    invalidEA
+                        cmp.b	    #%010,d4	    * Address Register Indirect
+                        beq		    printSubDestIIAIndRegister
+                        cmp.b	    #%011,d4	    * Address Register Indirect With Post Incrementing
+                        beq		    printSubDestIIAIndPlusRegister
+                        cmp.b	    #%100,d4	    * Address Register Indirect With Pre Decrementing
+                        beq		    printSubDestIIAIndMinRegister
+                        cmp.b	    #%101,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%110,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%111,d4	    * Immediate Data, Absolute Long Address, or Absolute Word Address
+                        beq         dest
+
+
+**************************************************
+* subByte, subWord, subLong
+* Destination
+printSubDestIIAIndRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            bra     finish
+
+
+**************************************************
+* subByte, subWord, subLong
+* Destination
+printSubDestIIAIndPlusRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            move.b  #plus,(a4)+         * Put a "+" into the good buffer    
+            
+            bra     finish
+
+
+**************************************************
+* subByte, subWord, subLong
+* Destination
+printSubDestIIAIndMinRegister
+            move.b  #minus,(a4)+        * Put a "-" into the good buffer
+
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer    
+            
+            bra     finish
+
+
+**************************************************
+* leaLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+printLeaSource          ;clr.l   d2
+                        ;move.l  #$0000161F,d2
+                        move.l	d2,d4
+                        move.b	#26,d5
+                        lsl.l	  d5,d4
+                        
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #5,d4
+                    
+                        cmpi.l	    #%000,d4	    * Data Register Direct
+                        beq         	    invalidEA
+                        cmpi.l	    #%001,d4	    * Address Register Direct
+                        beq		    invalidEA
+                        cmp.b	    #%010,d4	    * Address Register Indirect
+                        beq		    printLeaSourceAIndRegister
+                        cmp.b	    #%011,d4	    * Address Register Indirect With Post Incrementing
+                        beq		    InvalidEA
+                        cmp.b	    #%100,d4	    * Address Register Indirect With Pre Decrementing
+                        beq		    invalidEA
+                        cmp.b	    #%101,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%110,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%111,d4	    * Immediate Data, Absolute Long Address, or Absolute Word Address
+                        beq         dest
+
+
+**************************************************
+* leaLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+
+printLeaDestination
+            move.b      #comma,(a4)+    * Put a comma into the good buffer
+            
+            
+                        move.l	    d2,d5
+                        lsl.l	    #7,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+            
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #5,d5
+                        move.b      #$77,d0
+
+                        cmp.b	    #%000,d5	    * cmp, data register
+                        beq		    invalidEA
+                        cmp.b	    #%001,d5	    * cmp, data register
+                        beq		    invalidEA
+                        cmp.b	    #%010,d5	    * cmp, data register
+                        beq		    invalidEA
+                        cmp.b	    #%011,d5	    * cmpa, address register
+                        beq		    invalidEA
+                        cmp.b	    #%100,d5	    * eor, data register
+                        beq		    invalidEA
+                        cmp.b	    #%101,d5	    * eor, data register
+                        beq	  	    invalidEA
+                        cmp.b 	    #%110,d5	    * eor, data register
+                        beq	  	    invalidEA
+                        cmp.b 	    #%111,d5	    * cmpa, address register
+                        beq	  	    printLeaDestARegister
+
+
+**************************************************
+* leaLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printLeaDestARegister
+			move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+			
+			jsr     printDestinationRegNum
+			
+			bra finish
+
+
+**************************************************
+* leaLong
+* Source
+printLeaSourceAIndRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            bra     printLeaDestination
+
+
+**************************************************
+* andByte, andWord, andLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+
+printAndSource
+                        move.l	    d2,d5
+                        lsl.l	    #7,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+            
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #5,d5
+                        move.b      #$77,d0
+
+                        cmp.b	    #%000,d5	    * and, dest is second operand
+                        beq		    printAndSourceI
+                        cmp.b	    #%001,d5	    * and, dest is second operand
+                        beq		    printAndSourceI
+                        cmp.b	    #%010,d5	    * and, dest is second operand
+                        beq		    printAndSourceI
+                        cmp.b	    #%011,d5	    * invalid
+                        beq		    invalidEA
+                        cmp.b	    #%100,d5	    * and, dest is first operand
+                        beq		    printAndSourceII
+                        cmp.b	    #%101,d5	    * and, dest is first operand
+                        beq	  	    printAndSourceII
+                        cmp.b 	    #%110,d5	    * and, dest is first operand
+                        beq	  	    printAndSourceII
+                        cmp.b 	    #%111,d5	    * invalid
+                        beq	  	    invalidEA
+
+
+**************************************************
+* andByte, andWord, andLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+printAndSourceI         ;clr.l   d2
+                        ;move.l  #$0000161F,d2
+                        move.l	d2,d4
+                        move.b	#26,d5
+                        lsl.l	  d5,d4
+                        
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #5,d4
+                    
+                        cmpi.l	    #%000,d4	    * Data Register Direct
+                        beq         	    printAndSourceIDRegister
+                        cmpi.l	    #%001,d4	    * Address Register Direct
+                        beq		    invalidEA
+                        cmp.b	    #%010,d4	    * Address Register Indirect
+                        beq		    printAndSourceIAIndRegister
+                        cmp.b	    #%011,d4	    * Address Register Indirect With Post Incrementing
+                        beq		    printAndSourceIAIndPlusRegister
+                        cmp.b	    #%100,d4	    * Address Register Indirect With Pre Decrementing
+                        beq		    printAndSourceIAIndMinRegister
+                        cmp.b	    #%101,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%110,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%111,d4	    * Immediate Data, Absolute Long Address, or Absolute Word Address
+                        beq         dest
+
+
+**************************************************
+* andByte, andWord, andLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printAndSourceII
+			move.b	#asciiD,(a4)+	* Put a "D" into the good buffer
+			
+			jsr     printDestinationRegNum
+			
+			bra printAndDestinationII
+
+
+**************************************************
+* andByte, andWord, andLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+
+printAndDestinationI    move.b      #comma,(a4)+    * Put a comma into the good buffer
+
+                        move.l	    d2,d5
+                        lsl.l	    #7,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+            
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #5,d5
+                        move.b      #$77,d0
+
+                        cmp.b	    #%000,d5	    * and
+                        beq		    printAndDestIDRegister
+                        cmp.b	    #%001,d5	    * and
+                        beq		    printAndDestIDRegister
+                        cmp.b	    #%010,d5	    * and
+                        beq		    printAndDestIDRegister
+                        cmp.b	    #%011,d5	    * invalid
+                        beq		    invalidEA
+                        cmp.b	    #%100,d5	    * and
+
+			*** this code isn't necessary ***
+                        beq		    printAndDestIDRegister
+                        cmp.b	    #%101,d5	    * and
+                        beq	  	    printAndDestIDRegister
+                        cmp.b 	    #%110,d5	    * and
+                        beq	  	    printAndDestIDRegister
+			*********************************
+
+                        cmp.b 	    #%111,d5	    * invalid
+                        beq	  	    invalidEA
+
+
+**************************************************
+* andByte, andWord, andLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printAndDestIDRegister
+			move.b	#asciiD,(a4)+	* Put a "D" into the good buffer
+			
+			jsr     printDestinationRegNum
+			
+			bra finish
+
+
+**************************************************
+* andByte, andWord, andLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 destination register bits
+printAndDestIARegister
+			move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+			
+			jsr     printDestinationRegNum
+			
+			bra finish
+
+
+**************************************************
+* andByte, andWord, andLong
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source register bits
+
+printAndSourceIDRegister
+      move.b  #asciiD,(a4)+          * Put a "D" into the good buffer
+			
+			jsr     printSourceRegNum
+			
+			bra     printAndDestinationI
+
+
+**************************************************
+* andByte, andWord, andLong
+* Source
+printAndSourceIAIndRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            bra     printAndDestinationI
+
+
+**************************************************
+* andByte, andWord, andLong
+* Source
+printAndSourceIAIndPlusRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            move.b  #plus,(a4)+         * Put a "+" into the good buffer    
+            
+            bra     printAndDestinationI
+
+
+**************************************************
+* andByte, andWord, andLong
+* Source
+printAndSourceIAIndMinRegister
+            move.b  #minus,(a4)+        * Put a "-" into the good buffer
+
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer    
+            
+            bra     printAndDestinationI
+
+
+**************************************************
+* andByte, andWord, andLong
+* Destination
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+printAndDestinationII
+			move.b      #comma,(a4)+    * Put a comma into the good buffer
+			;clr.l   d2
+                        ;move.l  #$0000161F,d2
+                        move.l	d2,d4
+                        move.b	#26,d5
+                        lsl.l	  d5,d4
+                        
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #5,d4
+                    
+                        cmpi.l	    #%000,d4	    * Data Register Direct
+                        beq         	    invalidEA
+                        cmpi.l	    #%001,d4	    * Address Register Direct
+                        beq		    invalidEA
+                        cmp.b	    #%010,d4	    * Address Register Indirect
+                        beq		    printAndDestIIAIndRegister
+                        cmp.b	    #%011,d4	    * Address Register Indirect With Post Incrementing
+                        beq		    printAndDestIIAIndPlusRegister
+                        cmp.b	    #%100,d4	    * Address Register Indirect With Pre Decrementing
+                        beq		    printAndDestIIAIndMinRegister
+                        cmp.b	    #%101,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%110,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%111,d4	    * Immediate Data, Absolute Long Address, or Absolute Word Address
+                        beq         dest
+
+
+**************************************************
+* andByte, andWord, andLong
+* Destination
+printAndDestIIAIndRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            bra     finish
+
+
+**************************************************
+* andByte, andWord, andLong
+* Destination
+printAndDestIIAIndPlusRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            move.b  #plus,(a4)+         * Put a "+" into the good buffer    
+            
+            bra     finish
+
+
+**************************************************
+* andByte, andWord, andLong
+* Destination
+printAndDestIIAIndMinRegister
+            move.b  #minus,(a4)+        * Put a "-" into the good buffer
+
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer    
+            
+            bra     finish
+
+
+**************************************************
 * moveByte, moveWord, moveLong
 * Destination
 *	d2: Original Instruction
@@ -2215,7 +2948,7 @@ printSourceRegNum
 			move.b      d7,(a4)+
 			rts
 
-
+                
 **************************************************
 * moveByte, moveWord, moveLong
 * Destination
@@ -2583,6 +3316,8 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
+
 
 
 
