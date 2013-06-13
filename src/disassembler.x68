@@ -438,8 +438,8 @@ writeMoveALong
                   clr.l   d3
                   clr.l   d4
                   jsr     pushMoveToBuffer
-                  move.w	#$41, (a4)+
-                  move.w	#$2e, (a4)+
+                  move.b	#$41, (a4)+
+                  move.b	#$2e, (a4)+
                   move.b	#$4c,	(a4)+
                   move.b  #tab,(a4)+                  ;add a tab
 				
@@ -3721,6 +3721,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
