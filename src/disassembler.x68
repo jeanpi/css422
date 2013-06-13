@@ -1660,8 +1660,8 @@ lsrLongEA   bra     printAsdSource
 printMoveSource         ;clr.l   d2
                         ;move.l  #$0000161F,d2
                         move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.b	#26,d7
+                        lsl.l	  d7,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -1695,70 +1695,70 @@ printMoveSource         ;clr.l   d2
 
 printMoveDestination    move.b      #comma,(a4)+    * Put a comma into the good buffer
 
-                        move.l	    d2,d5
-                        lsl.l	    #7,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #7,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * Data Register Direct
+                        cmp.b	    #%000,d7	    * Data Register Direct
                         beq		    printMoveDestDRegister
-                        cmp.b	    #%001,d5	    * Address Register Direct (Invalid)
+                        cmp.b	    #%001,d7	    * Address Register Direct (Invalid)
                         beq		    printMoveDestARegister
-                        cmp.b	    #%010,d5	    * Address Register Indirect
+                        cmp.b	    #%010,d7	    * Address Register Indirect
                         beq		    printMoveDestAIndRegister
-                        cmp.b	    #%011,d5	    * Address Register Indirect With Post Incrementing
+                        cmp.b	    #%011,d7	    * Address Register Indirect With Post Incrementing
                         beq		    printMoveDestAIndPlusRegister
-                        cmp.b	    #%100,d5	    * Address Register Indirect With Pre Decrementing
+                        cmp.b	    #%100,d7	    * Address Register Indirect With Pre Decrementing
                         beq		    printMoveDestAIndMinRegister
-                        cmp.b	    #%101,d5	    * Invalid?
+                        cmp.b	    #%101,d7	    * Invalid?
                         beq	  	    invalidEA
-                        cmp.b 	    #%110,d5	    * Invalid?
+                        cmp.b 	    #%110,d7	    * Invalid?
                         beq	  	    invalidEA
-                        cmp.b 	    #%111,d5	    * Immediate Data (Invalid), Absolute Long Address, or Absolute Word Address 
+                        cmp.b 	    #%111,d7	    * Immediate Data (Invalid), Absolute Long Address, or Absolute Word Address 
                         beq	  	    printMoveDestOneOneOne
                         
                         
 **************************************************
 printMoveSourceOneOneOne
-						movem.l		d5,-(SP)
-                        move.l	    d2,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
-                        lsl.l		#5,d5
+						movem.l		d7,-(SP)
+                        move.l	    d2,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
+                        lsl.l		#5,d7
 			
-            			lsr.l	    #8,d5
-						lsr.l	    #8,d5
-						lsr.l	    #8,d5
-						lsr.l	    #5,d5
+            			lsr.l	    #8,d7
+						lsr.l	    #8,d7
+						lsr.l	    #8,d7
+						lsr.l	    #5,d7
 			
-                        cmp.b	    #%000,d5	    * Word
+                        cmp.b	    #%000,d7	    * Word
                         beq		    printMoveSourceWord
-                        cmp.b	    #%001,d5	    * Long
+                        cmp.b	    #%001,d7	    * Long
                         beq		    printMoveSourceLong
-                        cmp.b	    #%010,d5	    * Invalid
+                        cmp.b	    #%010,d7	    * Invalid
                         beq		    invalidEA
-                        cmp.b	    #%011,d5	    * Invalid
+                        cmp.b	    #%011,d7	    * Invalid
                         beq		    invalidEA
-                        cmp.b	    #%100,d5	    * Immediate Data
+                        cmp.b	    #%100,d7	    * Immediate Data
                         beq		    printMoveSourceData
-                        cmp.b	    #%101,d5	    * Invalid
+                        cmp.b	    #%101,d7	    * Invalid
                         beq	  	    invalidEA
-                        cmp.b 	    #%110,d5	    * Invalid
+                        cmp.b 	    #%110,d7	    * Invalid
                         beq	  	    invalidEA
-                        cmp.b 	    #%111,d5	    * Invalid
+                        cmp.b 	    #%111,d7	    * Invalid
                         beq	  	    invalidEA
 
 
 **************************************************
 printMoveSourceWord
-			movem.l		(SP)+,d5
+			movem.l		(SP)+,d7
 			
 			jsr printWord
 			
@@ -1767,7 +1767,7 @@ printMoveSourceWord
 
 **************************************************
 printMoveSourceLong
-			movem.l		(SP)+,d5
+			movem.l		(SP)+,d7
 			
 			jsr printLong
 			
@@ -1777,7 +1777,7 @@ printMoveSourceLong
 **************************************************
 printMoveSourceData
 			;jsr printData
-			movem.l		(SP)+,d5
+			movem.l		(SP)+,d7
 
 			bra printMoveDestination
 
@@ -1785,38 +1785,38 @@ printMoveSourceData
 
 **************************************************
 printMoveDestOneOneOne
-						movem.l		d5,-(SP)
-						move.l	    d2,d5       * Check Destination Register
-						lsl.l		#8,d5
-						lsl.l		#8,d5
-						lsl.l		#4,d5
+						movem.l		d7,-(SP)
+						move.l	    d2,d7       * Check Destination Register
+						lsl.l		#8,d7
+						lsl.l		#8,d7
+						lsl.l		#4,d7
 			
-            			lsr.l	    #8,d5
-						lsr.l	    #8,d5
-						lsr.l	    #8,d5
-						lsr.l	    #5,d5
+            			lsr.l	    #8,d7
+						lsr.l	    #8,d7
+						lsr.l	    #8,d7
+						lsr.l	    #5,d7
 			
-                        cmp.b	    #%000,d5	    * Word
+                        cmp.b	    #%000,d7	    * Word
                         beq		    printMoveDestWord
-                        cmp.b	    #%001,d5	    * Long
+                        cmp.b	    #%001,d7	    * Long
                         beq		    printMoveDestLong
-                        cmp.b	    #%010,d5	    * Invalid
+                        cmp.b	    #%010,d7	    * Invalid
                         beq		    invalidEA
-                        cmp.b	    #%011,d5	    * Invalid
+                        cmp.b	    #%011,d7	    * Invalid
                         beq		    invalidEA
-                        cmp.b	    #%100,d5	    * Immediate Data
+                        cmp.b	    #%100,d7	    * Immediate Data
                         beq		    invalidEA
-                        cmp.b	    #%101,d5	    * Invalid
+                        cmp.b	    #%101,d7	    * Invalid
                         beq	  	    invalidEA
-                        cmp.b 	    #%110,d5	    * Invalid
+                        cmp.b 	    #%110,d7	    * Invalid
                         beq	  	    invalidEA
-                        cmp.b 	    #%111,d5	    * Invalid
+                        cmp.b 	    #%111,d7	    * Invalid
                         beq	  	    invalidEA
 
 
 **************************************************
 printMoveDestWord
-			movem.l		(SP)+,d5
+			movem.l		(SP)+,d7
 
 			jsr printWord
 			
@@ -1825,7 +1825,7 @@ printMoveDestWord
 
 **************************************************
 printMoveDestLong
-			movem.l		(SP)+,d5
+			movem.l		(SP)+,d7
 
 			jsr printLong
 			
@@ -2030,8 +2030,8 @@ printBccLong
 printCmpSource         ;clr.l   d2
                         ;move.l  #$0000161F,d2
                         move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.b	#26,d7
+                        lsl.l	  d7,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -2067,32 +2067,32 @@ printCmpDestination
             move.b      #comma,(a4)+    * Put a comma into the good buffer
             
             
-                        move.l	    d2,d5
-                        lsl.l	    #7,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #7,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * cmp, data register
+                        cmp.b	    #%000,d7	    * cmp, data register
                         beq		    printCmpDestDRegister
-                        cmp.b	    #%001,d5	    * cmp, data register
+                        cmp.b	    #%001,d7	    * cmp, data register
                         beq		    printCmpDestDRegister
-                        cmp.b	    #%010,d5	    * cmp, data register
+                        cmp.b	    #%010,d7	    * cmp, data register
                         beq		    printCmpDestDRegister
-                        cmp.b	    #%011,d5	    * cmpa, address register
+                        cmp.b	    #%011,d7	    * cmpa, address register
                         beq		    printCmpDestARegister
-                        cmp.b	    #%100,d5	    * eor, data register
+                        cmp.b	    #%100,d7	    * eor, data register
                         beq		    printCmpDestDRegister
-                        cmp.b	    #%101,d5	    * eor, data register
+                        cmp.b	    #%101,d7	    * eor, data register
                         beq	  	    printCmpDestDRegister
-                        cmp.b 	    #%110,d5	    * eor, data register
+                        cmp.b 	    #%110,d7	    * eor, data register
                         beq	  	    printCmpDestDRegister
-                        cmp.b 	    #%111,d5	    * cmpa, address register
+                        cmp.b 	    #%111,d7	    * cmpa, address register
                         beq	  	    printCmpDestARegister
 
 
@@ -2211,32 +2211,32 @@ printCmpSourceAIndMinRegister
 *	d4: 3 source mode bits
 
 printAddSource
-                        move.l	    d2,d5
-                        lsl.l	    #7,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #7,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * add, dest is second operand
+                        cmp.b	    #%000,d7	    * add, dest is second operand
                         beq		    printAddSourceI
-                        cmp.b	    #%001,d5	    * add, dest is second operand
+                        cmp.b	    #%001,d7	    * add, dest is second operand
                         beq		    printAddSourceI
-                        cmp.b	    #%010,d5	    * add, dest is second operand
+                        cmp.b	    #%010,d7	    * add, dest is second operand
                         beq		    printAddSourceI
-                        cmp.b	    #%011,d5	    * adda, dest is second operand
+                        cmp.b	    #%011,d7	    * adda, dest is second operand
                         beq		    printAddSourceI
-                        cmp.b	    #%100,d5	    * add, dest is first operand
+                        cmp.b	    #%100,d7	    * add, dest is first operand
                         beq		    printAddSourceII
-                        cmp.b	    #%101,d5	    * add, dest is first operand
+                        cmp.b	    #%101,d7	    * add, dest is first operand
                         beq	  	    printAddSourceII
-                        cmp.b 	    #%110,d5	    * add, dest is first operand
+                        cmp.b 	    #%110,d7	    * add, dest is first operand
                         beq	  	    printAddSourceII
-                        cmp.b 	    #%111,d5	    * adda, dest is second operand
+                        cmp.b 	    #%111,d7	    * adda, dest is second operand
                         beq	  	    printAddSourceI
 
 
@@ -2249,8 +2249,8 @@ printAddSource
 printAddSourceI         ;clr.l   d2
                         ;move.l  #$0000161F,d2
                         move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.b	#26,d7
+                        lsl.l	  d7,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -2298,36 +2298,36 @@ printAddSourceII
 
 printAddDestinationI    move.b      #comma,(a4)+    * Put a comma into the good buffer
 
-                        move.l	    d2,d5
-                        lsl.l	    #7,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #7,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * add
+                        cmp.b	    #%000,d7	    * add
                         beq		    printAddDestIDRegister
-                        cmp.b	    #%001,d5	    * add
+                        cmp.b	    #%001,d7	    * add
                         beq		    printAddDestIDRegister
-                        cmp.b	    #%010,d5	    * add
+                        cmp.b	    #%010,d7	    * add
                         beq		    printAddDestIDRegister
-                        cmp.b	    #%011,d5	    * adda
+                        cmp.b	    #%011,d7	    * adda
                         beq		    printAddDestIARegister
-                        cmp.b	    #%100,d5	    * add
+                        cmp.b	    #%100,d7	    * add
 
 			*** this code isn't necessary ***
                         beq		    printAddDestIDRegister
-                        cmp.b	    #%101,d5	    * add
+                        cmp.b	    #%101,d7	    * add
                         beq	  	    printAddDestIDRegister
-                        cmp.b 	    #%110,d5	    * add
+                        cmp.b 	    #%110,d7	    * add
                         beq	  	    printAddDestIDRegister
 			*********************************
 
-                        cmp.b 	    #%111,d5	    * adda
+                        cmp.b 	    #%111,d7	    * adda
                         beq	  	    printAddDestIARegister
 
 
@@ -2449,8 +2449,8 @@ printAddDestinationII
 			;clr.l   d2
                         ;move.l  #$0000161F,d2
                         move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.b	#26,d7
+                        lsl.l	  d7,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -2532,32 +2532,32 @@ printAddDestIIAIndMinRegister
 *	d4: 3 source mode bits
 
 printSubSource
-                        move.l	    d2,d5
-                        lsl.l	    #7,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #7,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * sub, dest is second operand
+                        cmp.b	    #%000,d7	    * sub, dest is second operand
                         beq		    printSubSourceI
-                        cmp.b	    #%001,d5	    * sub, dest is second operand
+                        cmp.b	    #%001,d7	    * sub, dest is second operand
                         beq		    printSubSourceI
-                        cmp.b	    #%010,d5	    * sub, dest is second operand
+                        cmp.b	    #%010,d7	    * sub, dest is second operand
                         beq		    printSubSourceI
-                        cmp.b	    #%011,d5	    * suba, dest is first operand
+                        cmp.b	    #%011,d7	    * suba, dest is first operand
                         beq		    printSubSourceI
-                        cmp.b	    #%100,d5	    * sub, dest is first operand
+                        cmp.b	    #%100,d7	    * sub, dest is first operand
                         beq		    printSubSourceII
-                        cmp.b	    #%101,d5	    * sub, dest is first operand
+                        cmp.b	    #%101,d7	    * sub, dest is first operand
                         beq	  	    printSubSourceII
-                        cmp.b 	    #%110,d5	    * sub, dest is first operand
+                        cmp.b 	    #%110,d7	    * sub, dest is first operand
                         beq	  	    printSubSourceII
-                        cmp.b 	    #%111,d5	    * suba, dest is first operand
+                        cmp.b 	    #%111,d7	    * suba, dest is first operand
                         beq	  	    printSubSourceI
 
 
@@ -2570,8 +2570,8 @@ printSubSource
 printSubSourceI         ;clr.l   d2
                         ;move.l  #$0000161F,d2
                         move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.b	#26,d7
+                        lsl.l	  d7,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -2619,36 +2619,36 @@ printSubSourceII
 
 printSubDestinationI    move.b      #comma,(a4)+    * Put a comma into the good buffer
 
-                        move.l	    d2,d5
-                        lsl.l	    #7,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #7,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * sub
+                        cmp.b	    #%000,d7	    * sub
                         beq		    printSubDestIDRegister
-                        cmp.b	    #%001,d5	    * sub
+                        cmp.b	    #%001,d7	    * sub
                         beq		    printSubDestIDRegister
-                        cmp.b	    #%010,d5	    * sub
+                        cmp.b	    #%010,d7	    * sub
                         beq		    printSubDestIDRegister
-                        cmp.b	    #%011,d5	    * suba
+                        cmp.b	    #%011,d7	    * suba
                         beq		    printSubDestIARegister
-                        cmp.b	    #%100,d5	    * sub
+                        cmp.b	    #%100,d7	    * sub
 
 			*** this code isn't necessary ***
                         beq		    printSubDestIDRegister
-                        cmp.b	    #%101,d5	    * sub
+                        cmp.b	    #%101,d7	    * sub
                         beq	  	    printSubDestIDRegister
-                        cmp.b 	    #%110,d5	    * sub
+                        cmp.b 	    #%110,d7	    * sub
                         beq	  	    printSubDestIDRegister
 			*********************************
 
-                        cmp.b 	    #%111,d5	    * suba
+                        cmp.b 	    #%111,d7	    * suba
                         beq	  	    printSubDestIARegister
 
 
@@ -2770,8 +2770,8 @@ printSubDestinationII
 			;clr.l   d2
                         ;move.l  #$0000161F,d2
                         move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.b	#26,d7
+                        lsl.l	  d7,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -2854,8 +2854,8 @@ printSubDestIIAIndMinRegister
 printLeaSource          ;clr.l   d2
                         ;move.l  #$0000161F,d2
                         move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.b	#26,d7
+                        lsl.l	  d7,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -2891,32 +2891,32 @@ printLeaDestination
             move.b      #comma,(a4)+    * Put a comma into the good buffer
             
             
-                        move.l	    d2,d5
-                        lsl.l	    #7,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #7,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * cmp, data register
+                        cmp.b	    #%000,d7	    * cmp, data register
                         beq		    invalidEA
-                        cmp.b	    #%001,d5	    * cmp, data register
+                        cmp.b	    #%001,d7	    * cmp, data register
                         beq		    invalidEA
-                        cmp.b	    #%010,d5	    * cmp, data register
+                        cmp.b	    #%010,d7	    * cmp, data register
                         beq		    invalidEA
-                        cmp.b	    #%011,d5	    * cmpa, address register
+                        cmp.b	    #%011,d7	    * cmpa, address register
                         beq		    invalidEA
-                        cmp.b	    #%100,d5	    * eor, data register
+                        cmp.b	    #%100,d7	    * eor, data register
                         beq		    invalidEA
-                        cmp.b	    #%101,d5	    * eor, data register
+                        cmp.b	    #%101,d7	    * eor, data register
                         beq	  	    invalidEA
-                        cmp.b 	    #%110,d5	    * eor, data register
+                        cmp.b 	    #%110,d7	    * eor, data register
                         beq	  	    invalidEA
-                        cmp.b 	    #%111,d5	    * cmpa, address register
+                        cmp.b 	    #%111,d7	    * cmpa, address register
                         beq	  	    printLeaDestARegister
 
 
@@ -2957,32 +2957,32 @@ printLeaSourceAIndRegister
 *	d4: 3 source mode bits
 
 printAndSource
-                        move.l	    d2,d5
-                        lsl.l	    #7,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #7,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * and, dest is second operand
+                        cmp.b	    #%000,d7	    * and, dest is second operand
                         beq		    printAndSourceI
-                        cmp.b	    #%001,d5	    * and, dest is second operand
+                        cmp.b	    #%001,d7	    * and, dest is second operand
                         beq		    printAndSourceI
-                        cmp.b	    #%010,d5	    * and, dest is second operand
+                        cmp.b	    #%010,d7	    * and, dest is second operand
                         beq		    printAndSourceI
-                        cmp.b	    #%011,d5	    * invalid
+                        cmp.b	    #%011,d7	    * invalid
                         beq		    invalidEA
-                        cmp.b	    #%100,d5	    * and, dest is first operand
+                        cmp.b	    #%100,d7	    * and, dest is first operand
                         beq		    printAndSourceII
-                        cmp.b	    #%101,d5	    * and, dest is first operand
+                        cmp.b	    #%101,d7	    * and, dest is first operand
                         beq	  	    printAndSourceII
-                        cmp.b 	    #%110,d5	    * and, dest is first operand
+                        cmp.b 	    #%110,d7	    * and, dest is first operand
                         beq	  	    printAndSourceII
-                        cmp.b 	    #%111,d5	    * invalid
+                        cmp.b 	    #%111,d7	    * invalid
                         beq	  	    invalidEA
 
 
@@ -2995,8 +2995,8 @@ printAndSource
 printAndSourceI         ;clr.l   d2
                         ;move.l  #$0000161F,d2
                         move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.b	#26,d7
+                        lsl.l	  d7,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -3044,36 +3044,36 @@ printAndSourceII
 
 printAndDestinationI    move.b      #comma,(a4)+    * Put a comma into the good buffer
 
-                        move.l	    d2,d5
-                        lsl.l	    #7,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #7,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * and
+                        cmp.b	    #%000,d7	    * and
                         beq		    printAndDestIDRegister
-                        cmp.b	    #%001,d5	    * and
+                        cmp.b	    #%001,d7	    * and
                         beq		    printAndDestIDRegister
-                        cmp.b	    #%010,d5	    * and
+                        cmp.b	    #%010,d7	    * and
                         beq		    printAndDestIDRegister
-                        cmp.b	    #%011,d5	    * invalid
+                        cmp.b	    #%011,d7	    * invalid
                         beq		    invalidEA
-                        cmp.b	    #%100,d5	    * and
+                        cmp.b	    #%100,d7	    * and
 
 			*** this code isn't necessary ***
                         beq		    printAndDestIDRegister
-                        cmp.b	    #%101,d5	    * and
+                        cmp.b	    #%101,d7	    * and
                         beq	  	    printAndDestIDRegister
-                        cmp.b 	    #%110,d5	    * and
+                        cmp.b 	    #%110,d7	    * and
                         beq	  	    printAndDestIDRegister
 			*********************************
 
-                        cmp.b 	    #%111,d5	    * invalid
+                        cmp.b 	    #%111,d7	    * invalid
                         beq	  	    invalidEA
 
 
@@ -3180,8 +3180,8 @@ printAndDestinationII
 			;clr.l   d2
                         ;move.l  #$0000161F,d2
                         move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.b	#26,d7
+                        lsl.l	  d7,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -3257,75 +3257,75 @@ printAndDestIIAIndMinRegister
 
 **************************************************
 printAsdSource
-                        move.l	    d2,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
+                        move.l	    d2,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #6,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #6,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%00,d5	    * Byte Register Shift
+                        cmp.b	    #%00,d7	    * Byte Register Shift
                         beq		    printAsdRSource
-                        cmp.b	    #%01,d5	    * Word Register Shift
+                        cmp.b	    #%01,d7	    * Word Register Shift
                         beq		    printAsdRSource
-                        cmp.b	    #%10,d5	    * Long Register Shift
+                        cmp.b	    #%10,d7	    * Long Register Shift
                         beq		    printAsdRSource
-                        cmp.b	    #%11,d5	    * Word Memory Shift
+                        cmp.b	    #%11,d7	    * Word Memory Shift
                         beq		    printAsdM
 
 
 **************************************************
 printAsdRSource
-			move.l	    d2,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
-			lsl.l	    #2,d5
+			move.l	    d2,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
+			lsl.l	    #2,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #7,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #7,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%0,d5	    * Byte Register Shift
+                        cmp.b	    #%0,d7	    * Byte Register Shift
                         beq		    printAsdRSourceC
-                        cmp.b	    #%1,d5	    * Word Register Shift
+                        cmp.b	    #%1,d7	    * Word Register Shift
                         beq		    printAsdRSourceR
 
 
 **************************************************
 printAsdRSourceC	move.b      #pound,(a4)+          * Put a "#" into the good buffer
-			move.l	    d2,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #8,d5
-                        lsl.l	    #4,d5
+			move.l	    d2,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #4,d7
             
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #8,d5
-                        lsr.l	    #5,d5
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #5,d7
                         move.b      #$77,d0
 
-                        cmp.b	    #%000,d5	    * count: 8
+                        cmp.b	    #%000,d7	    * count: 8
                         beq		    printAsdRSourceCEight
-                        cmp.b	    #%001,d5	    * count: 1
+                        cmp.b	    #%001,d7	    * count: 1
                         beq		    printAsdRSourceCOne
-                        cmp.b	    #%010,d5	    * count: 2
+                        cmp.b	    #%010,d7	    * count: 2
                         beq		    printAsdRSourceCTwo
-                        cmp.b	    #%011,d5	    * count: 3
+                        cmp.b	    #%011,d7	    * count: 3
                         beq		    printAsdRSourceCThree
-                        cmp.b	    #%100,d5	    * count: 4
+                        cmp.b	    #%100,d7	    * count: 4
                         beq		    printAsdRSourceCFour
-                        cmp.b	    #%101,d5	    * count: 5
+                        cmp.b	    #%101,d7	    * count: 5
                         beq	  	    printAsdRSourceCFive
-                        cmp.b 	    #%110,d5	    * count: 6
+                        cmp.b 	    #%110,d7	    * count: 6
                         beq	  	    printAsdRSourceCSix
-                        cmp.b 	    #%111,d5	    * count: 7
+                        cmp.b 	    #%111,d7	    * count: 7
                         beq	  	    printAsdRSourceCSeven
 
 
@@ -3487,8 +3487,8 @@ printAsdMAIndMinRegister
 *	d4: 3 destination register bits
 printSourceRegNum
 			move.l	    d2,d4       * Put source register into the good buffer
-			move.b	    #29,d5
-			lsl.l	    d5,d4
+			move.b	    #29,d7
+			lsl.l	    d7,d4
 			
             lsr.l	    #8,d4
 			lsr.l	    #8,d4
@@ -3509,8 +3509,8 @@ printSourceRegNum
 *	d4: 3 destination register bits
 printDestinationRegNum
 			move.l      d2,d4       * Put destination register into the good buffer
-			move.b	    #20,d5
-			lsl.l       d5,d4
+			move.b	    #20,d7
+			lsl.l       d7,d4
 			
             lsr.l	    #8,d4
 			lsr.l	    #8,d4
@@ -3715,17 +3715,21 @@ returnFromEA
                   bra     validInstruction
 
 invalidInstruction
+                  move.b  #tab,(a0)+                  ;add a tab
                   move.b  #asciiD,(a0)+               ;Add 'DATA' to the good buffer for output
                   move.b  #asciiA,(a0)+
                   move.b  #asciiT,(a0)+
                   move.b  #asciiA,(a0)+
+                  move.b	#' ',	(a0)+
+                  move.b	#' ',	(a0)+
+                  move.b	#' ',	(a0)+
                   move.b  #tab,(a0)+                  ;add a tab
 
                   move.w  (a3),d4                     ;set up d4 to contain the instruction to print 
                   move.b  #2,d6                       ;Set up loop counter for subroutine, we're printing 2 bytes
                   jsr     pushD6HexValuesFromD4         ;Print the invalid instruction code
                  
-                  move.b  #$00,(a1)+                  ;Add null to terminate string
+                  move.b  #$00,(a0)+                  ;Add null to terminate string
                   movea.l #badBuffer,a1
                   move.b  #13,d0                      ;Task 13 prints the null terminated string in a1
                   trap    #15
