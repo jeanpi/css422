@@ -13,6 +13,7 @@ start ;move.w  #$0CCC,D4
       move.w    D4,D6
       movea.w   D6, A4
       move.b    d0, d7
+      movea.l   d6, a4
       
       * cmp
       cmp.b     d2,d1
@@ -43,10 +44,12 @@ start ;move.w  #$0CCC,D4
       suba.w    d1,a1
       suba.l    (a5),a5
       
+
       * rts
       
       * lea
-      
+      asl.b     #3,d5
+      asl.w     -(a7)
       lea       (a5),a7
       
       * and
@@ -56,8 +59,7 @@ start ;move.w  #$0CCC,D4
       
       * asl, asr
       
-      asl.b     #3,d5
-      asl.w     -(a7)
+      
       asr.w     (a4)
       asr.l     #8,d0
       
@@ -77,6 +79,8 @@ start ;move.w  #$0CCC,D4
 * Put variables and constants here
 
     end    start        ; last line of source
+
+
 
 
 
