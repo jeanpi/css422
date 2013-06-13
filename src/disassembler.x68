@@ -1676,7 +1676,106 @@ printMoveDestination    move.b      #comma,(a4)+    * Put a comma into the good 
                         cmp.b 	    #%110,d5	    * Invalid?
                         beq	  	    invalidEA
                         cmp.b 	    #%111,d5	    * Immediate Data (Invalid), Absolute Long Address, or Absolute Word Address
+                        
                         beq	  	    getData
+                        
+                        
+**************************************************
+printMoveSourceOneOneOne
+						;clr			d4
+                        move.l	    d2,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+                        lsl.l		#5,d5
+			
+            			lsr.l	    #8,d5
+						lsr.l	    #8,d5
+						lsr.l	    #8,d5
+						lsr.l	    #5,d5
+			
+                        cmp.b	    #%000,d5	    * Word
+                        beq		    printMoveSourceWord
+                        cmp.b	    #%001,d5	    * Long
+                        beq		    printMoveSourceLong
+                        cmp.b	    #%010,d5	    * Invalid
+                        beq		    invalidEA
+                        cmp.b	    #%011,d5	    * Invalid
+                        beq		    invalidEA
+                        cmp.b	    #%100,d5	    * Immediate Data
+                        beq		    printMoveSourceData
+                        cmp.b	    #%101,d5	    * Invalid
+                        beq	  	    invalidEA
+                        cmp.b 	    #%110,d5	    * Invalid
+                        beq	  	    invalidEA
+                        cmp.b 	    #%111,d5	    * Invalid
+                        beq	  	    invalidEA
+
+
+**************************************************
+printMoveSourceWord
+			jsr printWord
+			
+			bra printMoveDestination
+
+
+**************************************************
+printMoveSourceLong
+			jsr printLong
+			
+			bra printMoveDestination
+
+
+**************************************************
+printMoveSourceData
+			;jsr printData
+
+			bra printMoveDestination
+
+
+
+**************************************************
+printMoveDestOneOneOne
+						move.l	    d2,d4       * Check Destination Register
+						move.b	    #20,d5
+						lsl.l	    d5,d4
+			
+            			lsr.l	    #8,d4
+						lsr.l	    #8,d4
+						lsr.l	    #8,d4
+						lsr.l	    #5,d4
+			
+                        cmp.b	    #%000,d5	    * Word
+                        beq		    printMoveDestWord
+                        cmp.b	    #%001,d5	    * Long
+                        beq		    printMoveDestLong
+                        cmp.b	    #%010,d5	    * Invalid
+                        beq		    invalidEA
+                        cmp.b	    #%011,d5	    * Invalid
+                        beq		    invalidEA
+                        cmp.b	    #%100,d5	    * Immediate Data
+                        beq		    invalidEA
+                        cmp.b	    #%101,d5	    * Invalid
+                        beq	  	    invalidEA
+                        cmp.b 	    #%110,d5	    * Invalid
+                        beq	  	    invalidEA
+                        cmp.b 	    #%111,d5	    * Invalid
+                        beq	  	    invalidEA
+
+
+**************************************************
+printMoveDestWord
+			jsr printWord
+			
+			bra finish
+
+
+**************************************************
+printMoveDestLong
+			jsr printLong
+			
+			bra finish
+
 
 
 **************************************************
@@ -3351,6 +3450,30 @@ printDestinationRegNum
 
 
 **************************************************
+printWord
+			movem.l	d4,-(SP)
+			move.b  #pound,(a4)+        * Put a "#" into the good buffer
+			move.b  #dollar,(a4)+       * Put a "$" into the good buffer
+			move.w	(a6)+,d4
+			move.b	#2,d6
+			jsr	pushD6HexValuesFromD4
+			movem.l	(SP)+,d4
+			rts
+
+
+**************************************************
+printLong
+			movem.l	d4,-(SP)
+			move.b  #pound,(a4)+        * Put a "#" into the good buffer
+			move.b  #dollar,(a4)+       * Put a "$" into the good buffer
+			move.l	(a6)+,d4
+			move.b	#4,d6
+			jsr	pushD6HexValuesFromD4
+			movem.l	(SP)+,d4
+			rts
+
+
+**************************************************
 dest
 
 
@@ -3643,6 +3766,7 @@ closeP            EQU     $29
 plus              EQU     $2B
 minus             EQU     $2D
 pound             EQU     $23
+dollar			  EQU	  $24
 
 asciiZeroInHex    EQU     $30
 asciiOneInHex     EQU     $31
@@ -3721,6 +3845,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
