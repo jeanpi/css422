@@ -114,7 +114,7 @@ restart
 
 finished                                  ; branch for end of program
                   
-        	        SIMHALT                 ; halt simulator
+        	        ;SIMHALT                 ; halt simulator
                   
  
 ************************************************************************
@@ -150,7 +150,7 @@ writeImmediate
                 beq     writeEori
                 cmp.b   #%1100, d3  
                 beq     writeCmpi
-                jsr     invalidOpcode
+
 
 writeAndi
                 clr.l   d3  
@@ -178,7 +178,6 @@ writeAndiByte
                 clr.l   d3  
                 clr.l   d4
                ; jsr     andiByteEA 
-               
 
 writeAndiWord
                 jsr     pushAndToBuffer
@@ -189,8 +188,7 @@ writeAndiWord
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-               ; jsr     andiWordEA  
-                   
+               ; jsr     andiWordEA     
 
 writeAndiLong               
                 jsr     pushAndToBuffer
@@ -218,7 +216,6 @@ writeSubi
                 beq     writeSubiWord
                 cmp.b   #$02, d3
                 beq     writeSubiLong
-                jsr  invalidOpcode
 writeSubiByte
                 jsr     pushSubToBuffer
                 move.b  #$49, (a4)+		      ;push i to buffer
@@ -270,7 +267,6 @@ writeAddi
                 beq     writeAddiWord
                 cmp.b   #$02, d3
                 beq     writeAddiLong
-                jsr  invalidOpcode
 writeAddiByte
                 jsr     pushAddToBuffer
                 move.b  #$49, (a4)+		      ;push i to buffer
@@ -321,7 +317,6 @@ writeEori
                 beq     writeEoriWord
                 cmp.b   #$02, d3
                 beq     writeEoriLong
-                jsr  invalidOpcode
 writeEoriByte
                 jsr     pushEorToBuffer
                 move.b  #$49, (a4)+		    ;push i to buffer
@@ -372,7 +367,6 @@ writeCmpi
                 beq     writeCmpiWord
                 cmp.b   #$02, d3
                 beq     writeCmpiLong
-                jsr  invalidOpcode
 writeCmpiByte
                 jsr     pushCmpToBuffer
                 move.b  #$49, (a4)+		      ;push i to buffer
@@ -429,7 +423,7 @@ writeMoveLong
                   move.l	#29, d4
                   lsr.l	  d4,d3				
                   
-                  cmp.b	  #%001, d3 
+                  cmp.b	  #%001, d3
                   beq	    writeMoveALong
                   clr.l   d3
                   clr.l   d4
@@ -475,14 +469,6 @@ writeMoveWord
 writeMoveAWord
                   clr.l   d3
                   clr.l   d4
-                  move.w  d2, d3   
-                  move.b  #18, d4
-                  lsl.l     d4, d3
-                  clr.l     d4
-                  move.b    #30, d4
-                  lsr.l     d4,d3
-                  cmp.b     #$01, d3
-                  beq       invalidOpcode
                   jsr     pushMoveToBuffer
                   move.b	#$41, (a4)+
                   move.b	#$2e, (a4)+
@@ -494,19 +480,19 @@ writeRts
                   move.w	d2, d3
                   move.b	#23, d4
                   lsl.l	  d4, d3
-                  clr.l     d4  
+                  
                   move.l	#29, d4
                   lsr.l	  d4,d3				
                   
                   cmp.b 	#%111, d3
                   beq     writeLea
-                  clr.l   d3
+                   clr.l   d3
                   clr.l   d4    
                   move.b  #$52, (a4)+
                   move.b  #$54, (a4)+
                   move.b  #$53, (a4)+
                   ;add a tab
-                  jsr     returnFromEA  
+                  jsr     leaEA 
 
                 
 writeLea
@@ -522,7 +508,7 @@ writeLea
                   move.b	#' ',	(a4)+
                   move.b	#' ',	(a4)+
                   move.b  #tab,(a4)+                  ;add a tab
-                  jsr      leaEA            
+                  jsr      returnFromEA             
  
 pushMoveToBuffer
                   move.b	#$4d, (a4)+		
@@ -651,7 +637,6 @@ writeAddq
                 beq     writeAddqWord
                 cmp.b   #$02, d3
                 beq     writeAddqLong
-                jsr  invalidOpcode
 writeAddqByte
                 jsr     pushAddToBuffer
                 move.b  #$51, (a4)+             ;push q to buffer
@@ -696,7 +681,6 @@ writeSubq
                 beq     writeSubqWord
                 cmp.b   #$02, d3
                 beq     writeSubqLong
-                jsr  invalidOpcode
 writeSubqByte
                 jsr     pushSubToBuffer
                 move.b  #$51, (a4)+             ;push q to buffer
@@ -847,7 +831,6 @@ writeSubs
                 beq     writeSubLong 
                 cmp.b   #$03, d3    
                 beq     writeSuba
-                jsr  invalidOpcode
                 
 writeSubByte
                 jsr      pushSubToBuffer
@@ -895,7 +878,6 @@ writeSuba
                 beq     writeSubaWord
                 cmp.b   #$01, d3    
                 beq     writeSubaLong
-                jsr  invalidOpcode
 writeSubaWord
                 clr.l   d3
                 clr.l   d4
@@ -958,7 +940,6 @@ writeCmp
                 beq     writeCmpWord
                 cmp.b   #02, d3    
                 beq     writeCmpLong
-                jsr  invalidOpcode
 writeCmpByte
                 jsr     pushCmpToBuffer
                 move.b  #$2e, (a4)+    
@@ -1006,7 +987,6 @@ writeCmpa
                 beq     writeCmpaWord
                 cmp.b   #$01, d3    
                 beq     writeCmpaLong
-                jsr  invalidOpcode
 writeCmpaWord
                  clr.l   d3
                 clr.l   d4
@@ -1094,7 +1074,6 @@ writeAnds
                 beq     writeAndWord
                 cmp.b   #$02, d3
                 beq     writeAndLong
-                jsr  invalidOpcode
 writeAndByte
                 jsr     pushAndToBuffer
                 move.b  #$2e,   (a4)+
@@ -1147,7 +1126,6 @@ writeAdds
                 beq     writeAddLong 
                 cmp.b   #$03, d3    
                 beq     writeAdda
-                jsr  invalidOpcode
                 
 writeAddByte
                 jsr     pushAddToBuffer
@@ -3269,6 +3247,7 @@ printAndDestIIAIndMinRegister
             bra     finish
 
 
+**************************************************
 printAsdSource
                         move.l	    d2,d5
                         lsl.l	    #8,d5
@@ -3291,6 +3270,7 @@ printAsdSource
                         beq		    printAsdM
 
 
+**************************************************
 printAsdRSource
 			move.l	    d2,d5
                         lsl.l	    #8,d5
@@ -3310,6 +3290,7 @@ printAsdRSource
                         beq		    printAsdRSourceR
 
 
+**************************************************
 printAsdRSourceC	move.b      #pound,(a4)+          * Put a "#" into the good buffer
 			move.l	    d2,d5
                         lsl.l	    #8,d5
@@ -3340,54 +3321,63 @@ printAsdRSourceC	move.b      #pound,(a4)+          * Put a "#" into the good buf
                         beq	  	    printAsdRSourceCSeven
 
 
+**************************************************
 printAsdRSourceCEight
 			move.b     #asciiEightInHex,(a4)+          * Put a "#" into the good buffer
 
 			bra	   printAsdRDest
 
 
+**************************************************
 printAsdRSourceCOne
 			move.b     #asciiOneInHex,(a4)+          * Put a "#" into the good buffer
 
 			bra	   printAsdRDest
 
 
+**************************************************
 printAsdRSourceCTwo
 			move.b     #asciiTwoInHex,(a4)+          * Put a "#" into the good buffer
 
 			bra	   printAsdRDest
 
 
+**************************************************
 printAsdRSourceCThree
 			move.b     #asciiThreeInHex,(a4)+          * Put a "#" into the good buffer
 
 			bra	   printAsdRDest
 
 
+**************************************************
 printAsdRSourceCFour
 			move.b     #asciiFourInHex,(a4)+          * Put a "#" into the good buffer
 
 			bra	   printAsdRDest
 
 
+**************************************************
 printAsdRSourceCFive
 			move.b     #asciiFiveInHex,(a4)+          * Put a "#" into the good buffer
 
 			bra	   printAsdRDest
 
 
+**************************************************
 printAsdRSourceCSix
 			move.b     #asciiSixInHex,(a4)+          * Put a "#" into the good buffer
 
 			bra	   printAsdRDest
 
 
+**************************************************
 printAsdRSourceCSeven
 			move.b     #asciiSevenInHex,(a4)+          * Put a "#" into the good buffer
 
 			bra	   printAsdRDest
 
 
+**************************************************
 printAsdRSourceR
 			move.b     #asciiD,(a4)+	* Put a "D" into the good buffer
 			
@@ -3396,6 +3386,7 @@ printAsdRSourceR
 			bra	   printAsdRDest
 
 
+**************************************************
 printAsdRDest
             move.b     #comma,(a4)+     * Put a comma into the good buffer
 
@@ -3406,10 +3397,13 @@ printAsdRDest
 			bra	   finish
 
 
+**************************************************
 printAsdM
-                        move.l	d2,d4
-                        move.b	#26,d5
-                        lsl.l	  d5,d4
+                        move.l	d2,d4				* Check last 3 bits for ea
+                        lsl.l	#8,d4
+                        lsl.l	#8,d4
+                        lsl.l	#8,d4
+                        lsl.l	#2,d4
                         
                         lsr.l	  #8,d4
                         lsr.l	  #8,d4
@@ -3434,6 +3428,7 @@ printAsdM
                         beq         	    dest
 
 
+**************************************************
 printAsdMAIndRegister
             move.b	#openP,(a4)+        * Put a "(" into the good buffer
             
@@ -3446,6 +3441,7 @@ printAsdMAIndRegister
             bra     finish
 
 
+**************************************************
 printAsdMAIndPlusRegister
             move.b	#openP,(a4)+        * Put a "(" into the good buffer
             
@@ -3460,6 +3456,7 @@ printAsdMAIndPlusRegister
             bra     finish
 
 
+**************************************************
 printAsdMAIndMinRegister
             move.b  #minus,(a4)+        * Put a "-" into the good buffer
 
@@ -3712,6 +3709,7 @@ returnFromEA
                   bra     validInstruction
 
 invalidInstruction
+                  move.b  #tab,(a0)+                  ;add a tab
                   move.b  #asciiD,(a0)+               ;Add 'DATA' to the good buffer for output
                   move.b  #asciiA,(a0)+
                   move.b  #asciiT,(a0)+
@@ -3722,7 +3720,7 @@ invalidInstruction
                   move.b  #2,d6                       ;Set up loop counter for subroutine, we're printing 2 bytes
                   jsr     pushD6HexValuesFromD4         ;Print the invalid instruction code
                  
-                  move.b  #$00,(a1)+                  ;Add null to terminate string
+                  move.b  #$00,(a0)+                  ;Add null to terminate string
                   movea.l #badBuffer,a1
                   move.b  #13,d0                      ;Task 13 prints the null terminated string in a1
                   trap    #15
@@ -3914,7 +3912,6 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
-
 
 
 
