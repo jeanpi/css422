@@ -1234,11 +1234,13 @@ writeOneOneOneZero
                 jsr     invalidOpcode
 
 writeASd
+                clr.l       d3
+                clr.l       d4
                 move.w      d2, d3
                 move.b      #23, d4  
                 lsl.l       d4,d3
                 clr.l       d4
-                move.b      #31, d4
+                move.b      #31, d4  
                 lsr.l       d4,d3
                 cmp.b       #$00, d3
                 beq         writeAsr
