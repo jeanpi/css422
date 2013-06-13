@@ -1225,6 +1225,18 @@ writeOneOneOneZero
                 beq     writeASd
                 cmp.b   #$01, d3
                 beq     writeLSd
+                clr.l   d3
+                clr.l   d4
+                move.w  d2, d3
+                move.b  #22, d4
+                lsl.l   d4, d3
+                clr.l   d4
+                move.b  #31, d4
+                lsr.l   d4, d3
+                cmp.b   #$00, d3
+                beq     writeASd
+                cmp.b   #$01, d3
+                beq     writeLSd
                 jsr     invalidOpcode
 
 writeASd
@@ -4128,6 +4140,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
