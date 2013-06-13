@@ -152,7 +152,7 @@ writeAndi
                 clr.l   d4
                 move.l  d2, d3
                 move.b  #24, d4
-                lsl.l   d3, d3
+                lsl.l   d4, d3
                 clr.l   d4
                 move.b  #30, d4
                 lsr.l   d4, d3
@@ -201,7 +201,7 @@ writeSubi
                 clr.l   d4
                 move.l  d2, d3
                 move.b  #24, d4
-                lsl.l   d3, d3
+                lsl.l   d4, d3
                 clr.l   d4
                 move.b  #30, d4
                 lsr.l   d4, d3
@@ -252,7 +252,7 @@ writeAddi
                 clr.l   d4
                 move.l  d2, d3
                 move.b  #24, d4
-                lsl.l   d3, d3
+                lsl.l   d4, d3
                 clr.l   d4
                 move.b  #30, d4
                 lsr.l   d4, d3
@@ -302,7 +302,7 @@ writeEori
                 clr.l   d4
                 move.l  d2, d3
                 move.b  #24, d4
-                lsl.l   d3, d3
+                lsl.l   d4, d3
                 clr.l   d4
                 move.b  #30, d4
                 lsr.l   d4, d3
@@ -352,7 +352,7 @@ writeCmpi
                 clr.l   d4
                 move.l  d2, d3
                 move.b  #24, d4
-                lsl.l   d3, d3
+                lsl.l   d4, d3
                 clr.l   d4
                 move.b  #30, d4
                 lsr.l   d4, d3
@@ -397,6 +397,7 @@ writeCmpiLong
 
 
                 
+                
 ******************  0001 ***************************
 writeMoveByte            	    							
                 jsr     pushMoveToBuffer
@@ -406,7 +407,7 @@ writeMoveByte
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3
                 clr.l   d4
-                jsr     moveByteEA       
+                jsr     moveByteEA           
 
 ******************  0010 ***************************
 writeMoveLong
@@ -3593,6 +3594,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
