@@ -1123,7 +1123,7 @@ writeAsrByte
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$42, (a4)+
-              ;  jsr     writeAsrByteEA
+                jsr     asrByteEA
     
 
 writeAsrWord
@@ -1132,14 +1132,14 @@ writeAsrWord
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b      #$57, (a4)+
-             ;   jsr     writeAsrWordEA
+                jsr     asrWordEA
 writeAsrLong                
                 clr.l   d3
                 clr.l   d4
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b      #$4c, (a4)+
-              ;  jsr     writeAsrLongEA 
+                jsr     asrLongEA 
     
 writeAsl   
                 clr.l   d3  
@@ -1165,7 +1165,7 @@ writeAslByte
                 jsr     pushAslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$42, (a4)+
-              ;  jsr     writeAslByteEA
+                jsr     aslByteEA
     
 writeAslWord    
                 clr.l   d3
@@ -1173,14 +1173,14 @@ writeAslWord
                 jsr     pushAslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$57, (a4)+
-              ;  jsr     writeAslWordEA  
+                jsr     aslWordEA  
 writeAslLong                  
                 clr.l   d3
                 clr.l   d4
                 jsr     pushAslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$4c, (a4)+
-              ;  jsr     writeAslLongEA   
+                jsr     aslLongEA   
 
 writeLSd                 
                 move.w      d2, d3
@@ -1218,7 +1218,7 @@ writeLsrByte
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$42, (a4)+
-              ;  jsr     writeLsrByteEA
+                jsr     lsrByteEA
     
 writeLsrWord    
                 clr.l   d3
@@ -1226,14 +1226,14 @@ writeLsrWord
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$57, (a4)+
-              ;  jsr     writeLsrWordEA  
+                jsr     lsrWordEA  
 writeLsrLong                  
                 clr.l   d3
                 clr.l   d4
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$4c, (a4)+
-               ; jsr     writeLsrLongEA 
+                jsr     lsrLongEA 
 
 
 writeLsl
@@ -1260,7 +1260,7 @@ writeLslByte
                 jsr     pushLslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$42, (a4)+
-               ; jsr     writeLslByteEA
+                jsr     lslByteEA
     
 writeLslWord    
                 clr.l   d3
@@ -1268,14 +1268,14 @@ writeLslWord
                 jsr     pushLslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$57, (a4)+
-               ; jsr     writeLslWordEA  
+                jsr     lslWordEA  
 writeLslLong                  
                 clr.l   d3
                 clr.l   d4
                 jsr     pushLslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$4c, (a4)+
-                ;jsr     writeLslLongEA 
+                jsr     lslLongEA 
 
 
 
@@ -1451,13 +1451,29 @@ addLongEA   bra     printAddSource
 addAEA      bra     printAddSource
 
 * code1110
-aslEA       stop    #$2700  ; NOT DONE
+aslByteEA   bra     printAsdSource
 
-asrEA       stop    #$2700  ; NOT DONE
+aslWordEA   bra     printAsdSource
 
-lslEA       stop    #$2700  ; NOT DONE
+aslLongEA   bra     printAsdSource
 
-lsrEA       stop    #$2700  ; NOT DONE
+asrByteEA   bra     printAsdSource
+
+asrWordEA   bra     printAsdSource
+
+asrLongEA   bra     printAsdSource
+
+lslByteEA   bra     printAsdSource
+
+lslWordEA   bra     printAsdSource
+
+lslLongEA   bra     printAsdSource
+
+lsrByteEA   bra     printAsdSource
+
+lsrWordEA   bra     printAsdSource
+
+lsrLongEA   bra     printAsdSource
 
 * code1111 - nothing
 
@@ -2957,6 +2973,211 @@ printAndDestIIAIndMinRegister
             bra     finish
 
 
+printAsdSource
+                        move.l	    d2,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+            
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #6,d5
+                        move.b      #$77,d0
+
+                        cmp.b	    #%00,d5	    * Byte Register Shift
+                        beq		    printAsdRSource
+                        cmp.b	    #%01,d5	    * Word Register Shift
+                        beq		    printAsdRSource
+                        cmp.b	    #%10,d5	    * Long Register Shift
+                        beq		    printAsdRSource
+                        cmp.b	    #%11,d5	    * Word Memory Shift
+                        beq		    printAsdM
+
+
+printAsdRSource
+			move.l	    d2,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+			lsl.l	    #2,d5
+            
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #7,d5
+                        move.b      #$77,d0
+
+                        cmp.b	    #%0,d5	    * Byte Register Shift
+                        beq		    printAsdRSourceC
+                        cmp.b	    #%1,d5	    * Word Register Shift
+                        beq		    printAsdRSourceR
+
+
+printAsdRSourceC	move.b      #pound,(a4)+          * Put a "#" into the good buffer
+			move.l	    d2,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #8,d5
+                        lsl.l	    #4,d5
+            
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #8,d5
+                        lsr.l	    #5,d5
+                        move.b      #$77,d0
+
+                        cmp.b	    #%000,d5	    * count: 8
+                        beq		    printAsdRSourceCEight
+                        cmp.b	    #%001,d5	    * count: 1
+                        beq		    printAsdRSourceCOne
+                        cmp.b	    #%010,d5	    * count: 2
+                        beq		    printAsdRSourceCTwo
+                        cmp.b	    #%011,d5	    * count: 3
+                        beq		    printAsdRSourceCThree
+                        cmp.b	    #%100,d5	    * count: 4
+                        beq		    printAsdRSourceCFour
+                        cmp.b	    #%101,d5	    * count: 5
+                        beq	  	    printAsdRSourceCFive
+                        cmp.b 	    #%110,d5	    * count: 6
+                        beq	  	    printAsdRSourceCSix
+                        cmp.b 	    #%111,d5	    * count: 7
+                        beq	  	    printAsdRSourceCSeven
+
+
+printAsdRSourceCEight
+			move.b     #asciiEightInHex,(a4)+          * Put a "#" into the good buffer
+
+			bra	   printAsdRDest
+
+
+printAsdRSourceCOne
+			move.b     #asciiOneInHex,(a4)+          * Put a "#" into the good buffer
+
+			bra	   printAsdRDest
+
+
+printAsdRSourceCTwo
+			move.b     #asciiTwoInHex,(a4)+          * Put a "#" into the good buffer
+
+			bra	   printAsdRDest
+
+
+printAsdRSourceCThree
+			move.b     #asciiThreeInHex,(a4)+          * Put a "#" into the good buffer
+
+			bra	   printAsdRDest
+
+
+printAsdRSourceCFour
+			move.b     #asciiFourInHex,(a4)+          * Put a "#" into the good buffer
+
+			bra	   printAsdRDest
+
+
+printAsdRSourceCFive
+			move.b     #asciiFiveInHex,(a4)+          * Put a "#" into the good buffer
+
+			bra	   printAsdRDest
+
+
+printAsdRSourceCSix
+			move.b     #asciiSixInHex,(a4)+          * Put a "#" into the good buffer
+
+			bra	   printAsdRDest
+
+
+printAsdRSourceCSeven
+			move.b     #asciiSevenInHex,(a4)+          * Put a "#" into the good buffer
+
+			bra	   printAsdRDest
+
+
+printAsdRSourceR
+			move.b     #asciiD,(a4)+	* Put a "D" into the good buffer
+			
+			jsr        printDestinationRegNum
+			
+			bra	   printAsdRDest
+
+
+printAsdRDest
+            move.b     #comma,(a4)+     * Put a comma into the good buffer
+
+			move.b     #asciiD,(a4)+	* Put a "D" into the good buffer
+			
+			jsr        printSourceRegNum
+			
+			bra	   finish
+
+
+printAsdM
+                        move.l	d2,d4
+                        move.b	#26,d5
+                        lsl.l	  d5,d4
+                        
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #8,d4
+                        lsr.l	  #5,d4
+                    
+                        cmpi.l	    #%000,d4	    * Data Register Direct
+                        beq         	    invalidEA
+                        cmpi.l	    #%001,d4	    * Address Register Direct
+                        beq		    invalidEA
+                        cmp.b	    #%010,d4	    * Address Register Indirect
+                        beq		    printAsdMAIndRegister
+                        cmp.b	    #%011,d4	    * Address Register Indirect With Post Incrementing
+                        beq		    printAsdMAIndPlusRegister
+                        cmp.b	    #%100,d4	    * Address Register Indirect With Pre Decrementing
+                        beq		    printAsdMAIndMinRegister
+                        cmp.b	    #%101,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%110,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%111,d4	    * Immediate Data, Absolute Long Address, or Absolute Word Address
+                        beq         	    dest
+
+
+printAsdMAIndRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            bra     finish
+
+
+printAsdMAIndPlusRegister
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            move.b  #plus,(a4)+         * Put a "+" into the good buffer    
+            
+            bra     finish
+
+
+printAsdMAIndMinRegister
+            move.b  #minus,(a4)+        * Put a "-" into the good buffer
+
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer    
+            
+            bra     finish
+
+
 **************************************************
 * moveByte, moveWord, moveLong
 * Destination
@@ -3293,9 +3514,20 @@ openP             EQU     $28
 closeP            EQU     $29
 plus              EQU     $2B
 minus             EQU     $2D
+pound             EQU     $23
 
 asciiZeroInHex    EQU     $30
+asciiOneInHex     EQU     $31
+asciiTwoInHex     EQU     $32
+asciiThreeInHex   EQU     $33
+asciiFourInHex    EQU     $34
+asciiFiveInHex    EQU     $35
+asciiSixInHex     EQU     $36
+asciiSevenInHex   EQU     $37
+asciiEightInHex   EQU     $38
 asciiNineInHex    EQU     $39
+
+
 asciiAInHex       EQU     $41
 asciiFInHex       EQU     $46
 asciiCharToHex    EQU     $37   
@@ -3361,6 +3593,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
