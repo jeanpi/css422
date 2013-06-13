@@ -177,7 +177,7 @@ writeAndiByte
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-               ; jsr     andiByteEA 
+                jsr     andiByteEA 
 
 writeAndiWord
                 jsr     pushAndToBuffer
@@ -188,7 +188,7 @@ writeAndiWord
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-               ; jsr     andiWordEA     
+                jsr     andiWordEA     
 
 writeAndiLong               
                 jsr     pushAndToBuffer
@@ -199,7 +199,7 @@ writeAndiLong
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-              ;  jsr     andiLongEA  
+                jsr     andiLongEA  
 
 writeSubi
                 clr.l   d3  
@@ -225,7 +225,7 @@ writeSubiByte
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-              ;  jsr     subiByteEA 
+                jsr     subiByteEA 
 
 writeSubiWord
                 jsr     pushSubToBuffer
@@ -236,7 +236,7 @@ writeSubiWord
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-              ;  jsr     subiWordEA
+                jsr     subiWordEA
 
 writeSubiLong
                 jsr     pushSubToBuffer
@@ -247,7 +247,7 @@ writeSubiLong
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-              ;  jsr     subiLongEA  
+                jsr     subiLongEA  
 
 
 
@@ -276,7 +276,7 @@ writeAddiByte
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-              ;  jsr     addiByteEA 
+                jsr     addiByteEA 
 
 writeAddiWord
                 jsr     pushAddToBuffer
@@ -287,7 +287,7 @@ writeAddiWord
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-               ; jsr     addiWordEA
+                jsr     addiWordEA
 
 writeAddiLong
                 jsr     pushAddToBuffer
@@ -298,7 +298,7 @@ writeAddiLong
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-               ; jsr     addiLongEA  
+                jsr     addiLongEA  
                   
 
                 
@@ -326,7 +326,7 @@ writeEoriByte
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-              ;  jsr     eoriByteEA 
+                jsr     eoriByteEA 
 
 writeEoriWord
                 jsr     pushEorToBuffer
@@ -337,7 +337,7 @@ writeEoriWord
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-              ;  jsr     eoriWordEA
+                jsr     eoriWordEA
 
 writeEoriLong
                 jsr     pushEorToBuffer
@@ -348,7 +348,7 @@ writeEoriLong
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-              ;  jsr     eoriLongEA  
+                jsr     eoriLongEA  
                 
                 
                 
@@ -376,7 +376,7 @@ writeCmpiByte
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-               ; jsr     cmpiByteEA 
+                jsr     cmpiByteEA 
 
 writeCmpiWord
                 jsr     pushCmpToBuffer
@@ -387,7 +387,7 @@ writeCmpiWord
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-               ; jsr     cmpiWordEA
+                jsr     cmpiWordEA
 
 writeCmpiLong
                 jsr     pushCmpToBuffer
@@ -398,7 +398,7 @@ writeCmpiLong
                 move.b	#' ',	(a4)+
                 clr.l   d3  
                 clr.l   d4
-                ;jsr     cmpiLongEA				
+                jsr     cmpiLongEA				
 
 
                 
@@ -1602,15 +1602,35 @@ code1111       BRA         invalidOpcode
 * Subroutines from OP code jump table
 
 * code0000
-addIEA      stop    #$2700  ; NOT DONE
+addiByteEA      bra     printImmediateSource
 
-andIEA      stop    #$2700  ; NOT DONE
+addiWordEA      bra     printImmediateSource
 
-cmpIEA      stop    #$2700  ; NOT DONE
+addiLongEA      bra     printImmediateSource
 
-eorIEA      stop    #$2700  ; NOT DONE
+andiByteEA      bra     printImmediateSource
 
-subIEA      stop    #$2700  ; NOT DONE
+andiWordEA      bra     printImmediateSource
+
+andiLongEA      bra     printImmediateSource
+
+cmpiByteEA      bra     printImmediateSource
+
+cmpiWordEA      bra     printImmediateSource
+
+cmpiLongEA      bra     printImmediateSource
+
+eoriByteEA      bra     printImmediateSource
+
+eoriWordEA      bra     printImmediateSource
+
+eoriLongEA      bra     printImmediateSource
+
+subiByteEA      bra     printImmediateSource
+
+subiWordEA      bra     printImmediateSource
+
+subiLongEA      bra     printImmediateSource
 
 * code0001
 moveByteEA  bra     printMoveSource
@@ -3718,6 +3738,131 @@ printAsdMAIndMinRegister
 
 
 **************************************************
+printImmediateSource
+                        move.l	    d2,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
+                        lsl.l	    #8,d7
+            
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #8,d7
+                        lsr.l	    #6,d7
+
+                        cmp.b	    #%00,d7	    * byte size
+                        beq		    printImmediateByte
+                        cmp.b	    #%01,d7	    * word size
+                        beq		    printImmediateWord
+                        cmp.b	    #%10,d7	    * long size
+                        beq		    printImmediateLong
+                        cmp.b	    #%11,d7	    * invalid
+                        beq		    invalidEA
+
+
+**************************************************
+printImmediateByte
+	jsr	printByte
+
+	bra	printImmediateDest
+
+
+**************************************************
+printImmediateWord
+	jsr	printWord
+
+	bra	printImmediateDest
+
+
+**************************************************
+printImmediateLong
+	jsr	printLong
+
+	bra	printImmediateDest
+
+
+**************************************************
+printImmediateDest
+			            move.b      #comma,(a4)+    * Put a comma into the good buffer
+                        move.l	    d2,d4
+                        move.b	    #26,d7
+                        lsl.l	    d7,d4
+                        
+                        lsr.l	    #8,d4
+                        lsr.l	    #8,d4
+                        lsr.l	    #8,d4
+                        lsr.l	    #5,d4
+                    
+                        cmpi.l	    #%000,d4	    * Data Register Direct
+                        beq         printImmediateDestDReg
+                        cmpi.l	    #%001,d4	    * Invalid
+                        beq		    invalidEA
+                        cmp.b	    #%010,d4	    * Address Register Indirect
+                        beq		    printImmediateDestAIndReg
+                        cmp.b	    #%011,d4	    * Address Register Indirect With Post Incrementing
+                        beq		    printImmediateDestAIndPlusReg
+                        cmp.b	    #%100,d4	    * Address Register Indirect With Pre Decrementing
+                        beq		    printImmediateDestAIndMinReg
+                        cmp.b	    #%101,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%110,d4	    * Invalid?
+                        beq		    invalidEA
+                        cmp.b	    #%111,d4	    * Immediate Data, Absolute Long Address, or Absolute Word Address
+                        beq         dest
+
+
+**************************************************
+printImmediateDestDReg
+            move.b  #asciiD,(a4)+          * Put a "D" into the good buffer
+			
+			jsr     printSourceRegNum
+			
+			bra     finish
+
+
+**************************************************
+printImmediateDestAIndReg
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            bra     finish
+
+
+**************************************************
+printImmediateDestAIndPlusReg
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer
+            
+            move.b  #plus,(a4)+         * Put a "+" into the good buffer    
+            
+            bra     finish
+
+
+**************************************************
+printImmediateDestAIndMinReg
+            move.b  #minus,(a4)+        * Put a "-" into the good buffer
+
+            move.b	#openP,(a4)+        * Put a "(" into the good buffer
+            
+            move.b	#asciiA,(a4)+       * Put an "A" into the good buffer
+
+            jsr     printSourceRegNum
+            
+            move.b	#closeP,(a4)+       * Put a ")" into the good buffer    
+            
+            bra     finish
+
+
+**************************************************
 * moveByte, moveWord, moveLong
 * Destination
 *	d2: Original Instruction
@@ -3762,6 +3907,17 @@ printDestinationRegNum
 
 
 **************************************************
+printByte
+			movem.l	d4,-(SP)
+			move.b  #dollar,(a4)+       * Put a "$" into the good buffer
+			move.w	(a6)+,d4
+			move.b	#1,d6
+			jsr	pushD6HexValuesFromD4
+			movem.l	(SP)+,d4
+			rts
+
+
+**************************************************
 printWord
 			movem.l	d4,-(SP)
 			move.b  #dollar,(a4)+       * Put a "$" into the good buffer
@@ -3785,17 +3941,18 @@ printLong
 
 **************************************************
 dest
+            bra     returnFromEA
 
 
 **************************************************
 * If there is an invalid EA code, set MSB and return
 
 invalidEA	
-        ;add.l	  #80000000, d2
-		    clr.l   d2
-		    move.l  #$80000000,d2
+            swap    d2
+            adda.w  d2,a6
+            add.w   #8000,d2
+            swap    d2
 		    bra     returnFromEA
-		
 
 
 **************************************************
@@ -4159,6 +4316,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
