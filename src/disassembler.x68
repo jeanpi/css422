@@ -766,8 +766,9 @@ writeBhi
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
+                move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+   
-                 jsr     writeBcc
+                 jsr     bccEA
 
 writeBls
                 move.b  #$42, (a4)+
@@ -778,8 +779,9 @@ writeBls
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
+                move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+  
-                jsr     writeBcc
+                jsr     bccEA
                 
 writeBne
                 move.b  #$42, (a4)+
@@ -790,8 +792,9 @@ writeBne
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
+                move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+  
-                jsr     writeBcc
+                jsr     bccEA
 
 
 writeBeq
@@ -803,8 +806,9 @@ writeBeq
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
+                move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+  
-                jsr     writeBcc
+                jsr     bccEA
 
 writeBlt
                 move.b  #$42, (a4)+
@@ -815,8 +819,9 @@ writeBlt
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
+                move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+  
-                jsr     writeBcc                
+                jsr     bccEA               
 
 
 ******************  0111 ***************************    
@@ -1215,6 +1220,19 @@ writeAddaLong
 
 ******************  1110 ***************************
 writeOneOneOneZero
+                
+                move.w  d2, d3
+                move.b  #24, d4
+                lsl.l   d4, d3
+                clr.l   d4
+                move.b  #30, d4
+                lsr.l   d4, d3
+                clr.l   d4
+                cmp.b   #$03, d3    
+                beq     memoryShifts
+                
+                clr.l   d3
+                clr.l   d4
                 move.w  d2,d3
                 move.b  #27, d4
                 lsl.l   d4,d3
@@ -1225,6 +1243,8 @@ writeOneOneOneZero
                 beq     writeASd
                 cmp.b   #$01, d3
                 beq     writeLSd
+                
+memoryShifts
                 clr.l   d3
                 clr.l   d4
                 move.w  d2, d3
@@ -1238,7 +1258,6 @@ writeOneOneOneZero
                 cmp.b   #$01, d3
                 beq     writeLSd
                 jsr     invalidOpcode
-
 writeASd
                 move.w      d2, d3
                 move.b      #23, d4  
@@ -1411,7 +1430,7 @@ writeLsr
 writeLsrByte    
                 clr.l   d3
                 clr.l   d4
-                jsr     pushAsrToBuffer
+                jsr     pushLsrToBuffer 
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$42, (a4)+
                 move.b	#' ',	(a4)+
@@ -1423,7 +1442,7 @@ writeLsrByte
 writeLsrWord    
                 clr.l   d3
                 clr.l   d4
-                jsr     pushAsrToBuffer
+                jsr     pushLsrToBuffer 
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$57, (a4)+
              
@@ -1434,7 +1453,7 @@ writeLsrWord
 writeLsrLong                  
                 clr.l   d3
                 clr.l   d4
-                jsr     pushAsrToBuffer
+                jsr     pushLsrToBuffer 
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$4c, (a4)+
                 move.b	#' ',	(a4)+
