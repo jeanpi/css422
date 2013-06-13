@@ -1683,7 +1683,7 @@ printMoveSource         ;clr.l   d2
                         cmp.b	    #%110,d4	    * Invalid?
                         beq		    invalidEA
                         cmp.b	    #%111,d4	    * Immediate Data, Absolute Long Address, or Absolute Word Address
-                        beq         dest
+                        beq         printMoveSourceOneOneOne
 
 
 **************************************************
@@ -1720,14 +1720,13 @@ printMoveDestination    move.b      #comma,(a4)+    * Put a comma into the good 
                         beq	  	    invalidEA
                         cmp.b 	    #%110,d5	    * Invalid?
                         beq	  	    invalidEA
-                        cmp.b 	    #%111,d5	    * Immediate Data (Invalid), Absolute Long Address, or Absolute Word Address
-                        
-                        beq	  	    getData
+                        cmp.b 	    #%111,d5	    * Immediate Data (Invalid), Absolute Long Address, or Absolute Word Address 
+                        beq	  	    printMoveDestOneOneOne
                         
                         
 **************************************************
 printMoveSourceOneOneOne
-						;clr			d4
+						movem.l		d5,-(SP)
                         move.l	    d2,d5
                         lsl.l	    #8,d5
                         lsl.l	    #8,d5
@@ -1759,6 +1758,8 @@ printMoveSourceOneOneOne
 
 **************************************************
 printMoveSourceWord
+			movem.l		(SP)+,d5
+			
 			jsr printWord
 			
 			bra printMoveDestination
@@ -1766,6 +1767,8 @@ printMoveSourceWord
 
 **************************************************
 printMoveSourceLong
+			movem.l		(SP)+,d5
+			
 			jsr printLong
 			
 			bra printMoveDestination
@@ -1774,6 +1777,7 @@ printMoveSourceLong
 **************************************************
 printMoveSourceData
 			;jsr printData
+			movem.l		(SP)+,d5
 
 			bra printMoveDestination
 
@@ -1781,14 +1785,16 @@ printMoveSourceData
 
 **************************************************
 printMoveDestOneOneOne
-						move.l	    d2,d4       * Check Destination Register
-						move.b	    #20,d5
-						lsl.l	    d5,d4
+						movem.l		d5,-(SP)
+						move.l	    d2,d5       * Check Destination Register
+						lsl.l		#8,d5
+						lsl.l		#8,d5
+						lsl.l		#4,d5
 			
-            			lsr.l	    #8,d4
-						lsr.l	    #8,d4
-						lsr.l	    #8,d4
-						lsr.l	    #5,d4
+            			lsr.l	    #8,d5
+						lsr.l	    #8,d5
+						lsr.l	    #8,d5
+						lsr.l	    #5,d5
 			
                         cmp.b	    #%000,d5	    * Word
                         beq		    printMoveDestWord
@@ -1810,6 +1816,8 @@ printMoveDestOneOneOne
 
 **************************************************
 printMoveDestWord
+			movem.l		(SP)+,d5
+
 			jsr printWord
 			
 			bra finish
@@ -1817,6 +1825,8 @@ printMoveDestWord
 
 **************************************************
 printMoveDestLong
+			movem.l		(SP)+,d5
+
 			jsr printLong
 			
 			bra finish
@@ -3516,7 +3526,6 @@ printDestinationRegNum
 **************************************************
 printWord
 			movem.l	d4,-(SP)
-			move.b  #pound,(a4)+        * Put a "#" into the good buffer
 			move.b  #dollar,(a4)+       * Put a "$" into the good buffer
 			move.w	(a6)+,d4
 			move.b	#2,d6
@@ -3528,7 +3537,6 @@ printWord
 **************************************************
 printLong
 			movem.l	d4,-(SP)
-			move.b  #pound,(a4)+        * Put a "#" into the good buffer
 			move.b  #dollar,(a4)+       * Put a "$" into the good buffer
 			move.l	(a6)+,d4
 			move.b	#4,d6
@@ -3707,7 +3715,6 @@ returnFromEA
                   bra     validInstruction
 
 invalidInstruction
-                  move.b  #tab,(a0)+                  ;add a tab
                   move.b  #asciiD,(a0)+               ;Add 'DATA' to the good buffer for output
                   move.b  #asciiA,(a0)+
                   move.b  #asciiT,(a0)+
@@ -3718,7 +3725,7 @@ invalidInstruction
                   move.b  #2,d6                       ;Set up loop counter for subroutine, we're printing 2 bytes
                   jsr     pushD6HexValuesFromD4         ;Print the invalid instruction code
                  
-                  move.b  #$00,(a0)+                  ;Add null to terminate string
+                  move.b  #$00,(a1)+                  ;Add null to terminate string
                   movea.l #badBuffer,a1
                   move.b  #13,d0                      ;Task 13 prints the null terminated string in a1
                   trap    #15
@@ -3910,6 +3917,7 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
 
 
 
