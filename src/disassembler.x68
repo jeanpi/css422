@@ -1328,7 +1328,7 @@ code0010       BRA         writeMoveLong
 
 code0011       BRA         writeMoveWord    
 
-code0100       BRA          writeLea    
+code0100       BRA         writeLea    
 
 code0101       BRA         writeZeroOneZeroOne  
 
@@ -1395,7 +1395,7 @@ addQEA      stop    #$2700  ; NOT DONE
 subQEA      stop    #$2700  ; NOT DONE
 
 * code0110
-bccEA       stop    #$2700  ; NOT DONE
+bccEA       bra     printBcc
 
 * code0111
 moveQEA     stop    #$2700  ; NOT DONE
@@ -1692,8 +1692,38 @@ printMoveDestAIndMinRegister
             
             bra     finish
 
-
 **************************************************
+* printBcc 
+* Source
+*	d2: Original Instruction
+*	d3: Holder for hextoChar
+*	d4: 3 source mode bits
+printBcc
+                        move.b  d2,d4    ;move the 8 bit displacement value to branch on
+                        cmpi.b  #$00,d4
+                        beq     printBccWord
+                        cmpi.b  #$FF,d4
+                        beq     printBccLong
+                        bra     printBccByte
+  
+printBccByte
+                        move.b  #1,d6
+                        jsr     pushD6HexValuesFromD4 
+                        bra     returnFromEA
+printBccWord
+                        
+                        move.w  (a6)+,d4 
+                        move.b  #2,d6
+                        jsr     pushD6HexValuesFromD4 
+                        bra     returnFromEA
+
+printBccLong
+                        move.l  (a6)+,d4 
+                        move.b  #4,d6
+                        jsr     pushD6HexValuesFromD4 
+                        bra     returnFromEA
+
+ **************************************************
 * cmpByte, cmpWord, cmpLong
 * Source
 *	d2: Original Instruction
@@ -3179,7 +3209,7 @@ endPrintInstruction
 *
 * Subroutine to print the Hex values stored in d4, the number of bytes (2 hex values)
 * to be printed must be stored in d6, e.g move.b #2,d6 would print the 4 rightmost
-* hex values stored in d4. The number in d6 must be between 1 and 4.  
+* hex values stored in d4. The number in d6 must be between 1 and 4.
 **************************************************************************
 pushD6HexValuesFromD4
                   cmp.b   #4,d6
@@ -3273,6 +3303,21 @@ asciiCharToHex    EQU     $37
 asciiA            EQU     $41
 asciiD            EQU     $44
 asciiT            EQU     $54
+
+asciiB            EQU     $42
+asciiN            EQU     $4E
+asciiE            EQU     $45
+asciiL            EQU     $4C
+asciiQ            EQU     $51
+asciiH            EQU     $48
+asciiS            EQU     $53
+asciiI            EQU     $49
+
+conditionNE       EQU     %00000110
+conditionLS       EQU     %00000011
+conditionHI       EQU     %00000010
+conditionLT       EQU     %00001101
+conditionEQ       EQU     %00000111
 
 inputError        dc.b    CR,LF
                   dc.b    'That is not a valid address register. Exiting Program!',CR,LF,CR,LF,0 
