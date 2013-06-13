@@ -56,8 +56,17 @@ start ;move.w  #$0CCC,D4
       
       * asl, asr
       
+      asl.b     #3,d5
+      asl.w     -(a7)
       asr.w     (a4)
+      asr.l     #8,d0
       
+      * lsl, lsr
+      
+      lsl.b     #1,d5
+      lsl.w     (a1)+
+      lsr.w     (a0)
+      lsr.l     #8,d0
       
       
       
@@ -68,6 +77,7 @@ start ;move.w  #$0CCC,D4
 * Put variables and constants here
 
     end    start        ; last line of source
+
 
 
 
