@@ -3707,6 +3707,7 @@ returnFromEA
                   bra     validInstruction
 
 invalidInstruction
+                  move.b  #tab,(a0)+                  ;add a tab
                   move.b  #asciiD,(a0)+               ;Add 'DATA' to the good buffer for output
                   move.b  #asciiA,(a0)+
                   move.b  #asciiT,(a0)+
@@ -3717,7 +3718,7 @@ invalidInstruction
                   move.b  #2,d6                       ;Set up loop counter for subroutine, we're printing 2 bytes
                   jsr     pushD6HexValuesFromD4         ;Print the invalid instruction code
                  
-                  move.b  #$00,(a1)+                  ;Add null to terminate string
+                  move.b  #$00,(a0)+                  ;Add null to terminate string
                   movea.l #badBuffer,a1
                   move.b  #13,d0                      ;Task 13 prints the null terminated string in a1
                   trap    #15
