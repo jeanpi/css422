@@ -477,22 +477,29 @@ writeMoveAWord
                   jsr	    moveAWordEA			;jump to EA person's subroutine for MOVEA.W 
 ******************  0100 ***************************    
 writeRts
-                  move.w	d2, d3
-                  move.b	#23, d4
-                  lsl.l	  d4, d3
+                 ; move.w	d2, d3
+                 ; move.b	#23, d4
+                 ; lsl.l	     d4, d3
+                  ;clr.l     d4  
+                  ;move.l	#29, d4
+                  ;lsr.l	     d4,d3		
                   
-                  move.l	#29, d4
-                  lsr.l	  d4,d3				
-                  
-                  cmp.b 	#%111, d3
-                  beq     writeLea
-                   clr.l   d3
+                  clr.l d3
+                  clr.l d4
+                  move.w    d2,d3
+                  cmp.b     #$00, d3
+                  blt   writeLea
+     
+                
+                  clr.l   d3
                   clr.l   d4    
                   move.b  #$52, (a4)+
                   move.b  #$54, (a4)+
                   move.b  #$53, (a4)+
-                  ;add a tab
-                  jsr     leaEA 
+                  jsr    returnFromEA   
+                   
+                  
+       
 
                 
 writeLea
@@ -508,7 +515,7 @@ writeLea
                   move.b	#' ',	(a4)+
                   move.b	#' ',	(a4)+
                   move.b  #tab,(a4)+                  ;add a tab
-                  jsr      returnFromEA             
+                  jsr      leaEA             
  
 pushMoveToBuffer
                   move.b	#$4d, (a4)+		
@@ -541,7 +548,7 @@ pushLsrToBuffer
 pushAslToBuffer
                   move.b	#$41, (a4)+		
                   move.b  #$53, (a4)+		
-                  move.b  #$52, (a4)+		
+                  move.b  #$4c, (a4)+		
                   rts
 pushAddToBuffer
                   move.b	#$41, (a4)+		
@@ -1215,14 +1222,20 @@ writeASd
                 clr.l       d3
                 clr.l       d4
                 move.w      d2, d3
-                move.b      #23, d4  
-                lsl.l       d4,d3
-                clr.l       d4
-                move.b      #31, d4  
-                lsr.l       d4,d3
+                lsr.l       #1, d3
                 cmp.b       #$00, d3
-                beq         writeAsr
-                jsr         writeAsl
+                
+                ;move.b      #23, d4  
+                ;lsl.l       d4,d3
+                ;clr.l       d4
+                ;cmp.l       #$00000000, d3
+                blt         writeAsl
+                jsr         writeAsr
+               ; move.b      #31, d4  
+               ; lsr.l       d4,d3
+               ; cmp.b       #$00, d3
+               ; beq         writeAsr
+               ; jsr         writeAsl
 writeAsr
                 clr.l   d3  
                 clr.l   d4
@@ -1248,7 +1261,7 @@ writeAsrByte
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$42, (a4)+
-                move.b	#' ',	(a4)+
+                
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1261,7 +1274,7 @@ writeAsrWord
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b      #$57, (a4)+
-                move.b	#' ',	(a4)+
+                
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1272,7 +1285,7 @@ writeAsrLong
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b      #$4c, (a4)+
-                move.b	#' ',	(a4)+
+                
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1302,7 +1315,7 @@ writeAslByte
                 jsr     pushAslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$42, (a4)+
-                move.b	#' ',	(a4)+
+                
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1314,7 +1327,7 @@ writeAslWord
                 jsr     pushAslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$57, (a4)+
-                move.b	#' ',	(a4)+
+                
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1325,7 +1338,7 @@ writeAslLong
                 jsr     pushAslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$4c, (a4)+
-                move.b	#' ',	(a4)+
+                
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1367,7 +1380,7 @@ writeLsrByte
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$42, (a4)+
-                move.b	#' ',	(a4)+
+               
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1379,7 +1392,7 @@ writeLsrWord
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$57, (a4)+
-                move.b	#' ',	(a4)+
+                
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1390,7 +1403,7 @@ writeLsrLong
                 jsr     pushAsrToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$4c, (a4)+
-                move.b	#' ',	(a4)+
+              
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1421,7 +1434,7 @@ writeLslByte
                 jsr     pushLslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$42, (a4)+
-                move.b	#' ',	(a4)+
+              
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1433,7 +1446,7 @@ writeLslWord
                 jsr     pushLslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$57, (a4)+
-                move.b	#' ',	(a4)+
+           
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1444,7 +1457,7 @@ writeLslLong
                 jsr     pushLslToBuffer
                 move.b  #$2e, (a4)+         ;push , to buffer
                 move.b  #$4c, (a4)+
-                move.b	#' ',	(a4)+
+               
                 move.b	#' ',	(a4)+
                 move.b	#' ',	(a4)+
                 move.b  #tab,(a4)+
@@ -1503,7 +1516,7 @@ code0010       BRA         writeMoveLong
 
 code0011       BRA         writeMoveWord    
 
-code0100       BRA         writeLea    
+code0100       BRA         writeRts    
 
 code0101       BRA         writeZeroOneZeroOne  
 
@@ -3923,6 +3936,8 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
+
 
 
 
