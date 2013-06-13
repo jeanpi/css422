@@ -423,7 +423,7 @@ writeMoveLong
                   move.l	#29, d4
                   lsr.l	  d4,d3				
                   
-                  cmp.b	  #%001, d3
+                  cmp.b	  #%001, d3 
                   beq	    writeMoveALong
                   clr.l   d3
                   clr.l   d4
@@ -469,6 +469,14 @@ writeMoveWord
 writeMoveAWord
                   clr.l   d3
                   clr.l   d4
+                  move.w  d2, d3   
+                  move.b  #18, d4
+                  lsl.l     d4, d3
+                  clr.l     d4
+                  move.b    #30, d4
+                  lsr.l     d4,d3
+                  cmp.b     #$01, d3
+                  beq       invalidOpcode
                   jsr     pushMoveToBuffer
                   move.b	#$41, (a4)+
                   move.b	#$2e, (a4)+
@@ -480,19 +488,19 @@ writeRts
                   move.w	d2, d3
                   move.b	#23, d4
                   lsl.l	  d4, d3
-                  
+                  clr.l     d4  
                   move.l	#29, d4
                   lsr.l	  d4,d3				
                   
                   cmp.b 	#%111, d3
                   beq     writeLea
-                   clr.l   d3
+                  clr.l   d3
                   clr.l   d4    
                   move.b  #$52, (a4)+
                   move.b  #$54, (a4)+
                   move.b  #$53, (a4)+
                   ;add a tab
-                  jsr     leaEA 
+                  jsr     returnFromEA  
 
                 
 writeLea
@@ -508,7 +516,7 @@ writeLea
                   move.b	#' ',	(a4)+
                   move.b	#' ',	(a4)+
                   move.b  #tab,(a4)+                  ;add a tab
-                  jsr      returnFromEA             
+                  jsr      leaEA            
  
 pushMoveToBuffer
                   move.b	#$4d, (a4)+		
@@ -3890,6 +3898,8 @@ assembly          dc.b    ' ****************************************************
                   dc.b    ' ************************************************************************* '    ,CR,LF,CR,LF,0
               
                   end  start        ;last line of source
+
+
 
 
 
