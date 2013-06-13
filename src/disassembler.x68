@@ -150,7 +150,7 @@ writeImmediate
                 beq     writeEori
                 cmp.b   #%1100, d3  
                 beq     writeCmpi
-
+                jsr     invalidOpcode
 
 writeAndi
                 clr.l   d3  
@@ -178,6 +178,7 @@ writeAndiByte
                 clr.l   d3  
                 clr.l   d4
                ; jsr     andiByteEA 
+               
 
 writeAndiWord
                 jsr     pushAndToBuffer
@@ -188,7 +189,8 @@ writeAndiWord
                 move.b  #tab,(a4)+                  ;add a tab
                 clr.l   d3  
                 clr.l   d4
-               ; jsr     andiWordEA     
+               ; jsr     andiWordEA  
+                   
 
 writeAndiLong               
                 jsr     pushAndToBuffer
@@ -216,6 +218,7 @@ writeSubi
                 beq     writeSubiWord
                 cmp.b   #$02, d3
                 beq     writeSubiLong
+                jsr  invalidOpcode
 writeSubiByte
                 jsr     pushSubToBuffer
                 move.b  #$49, (a4)+		      ;push i to buffer
@@ -267,6 +270,7 @@ writeAddi
                 beq     writeAddiWord
                 cmp.b   #$02, d3
                 beq     writeAddiLong
+                jsr  invalidOpcode
 writeAddiByte
                 jsr     pushAddToBuffer
                 move.b  #$49, (a4)+		      ;push i to buffer
@@ -317,6 +321,7 @@ writeEori
                 beq     writeEoriWord
                 cmp.b   #$02, d3
                 beq     writeEoriLong
+                jsr  invalidOpcode
 writeEoriByte
                 jsr     pushEorToBuffer
                 move.b  #$49, (a4)+		    ;push i to buffer
@@ -367,6 +372,7 @@ writeCmpi
                 beq     writeCmpiWord
                 cmp.b   #$02, d3
                 beq     writeCmpiLong
+                jsr  invalidOpcode
 writeCmpiByte
                 jsr     pushCmpToBuffer
                 move.b  #$49, (a4)+		      ;push i to buffer
@@ -645,6 +651,7 @@ writeAddq
                 beq     writeAddqWord
                 cmp.b   #$02, d3
                 beq     writeAddqLong
+                jsr  invalidOpcode
 writeAddqByte
                 jsr     pushAddToBuffer
                 move.b  #$51, (a4)+             ;push q to buffer
@@ -689,6 +696,7 @@ writeSubq
                 beq     writeSubqWord
                 cmp.b   #$02, d3
                 beq     writeSubqLong
+                jsr  invalidOpcode
 writeSubqByte
                 jsr     pushSubToBuffer
                 move.b  #$51, (a4)+             ;push q to buffer
@@ -839,6 +847,7 @@ writeSubs
                 beq     writeSubLong 
                 cmp.b   #$03, d3    
                 beq     writeSuba
+                jsr  invalidOpcode
                 
 writeSubByte
                 jsr      pushSubToBuffer
@@ -886,6 +895,7 @@ writeSuba
                 beq     writeSubaWord
                 cmp.b   #$01, d3    
                 beq     writeSubaLong
+                jsr  invalidOpcode
 writeSubaWord
                 clr.l   d3
                 clr.l   d4
@@ -948,6 +958,7 @@ writeCmp
                 beq     writeCmpWord
                 cmp.b   #02, d3    
                 beq     writeCmpLong
+                jsr  invalidOpcode
 writeCmpByte
                 jsr     pushCmpToBuffer
                 move.b  #$2e, (a4)+    
@@ -995,6 +1006,7 @@ writeCmpa
                 beq     writeCmpaWord
                 cmp.b   #$01, d3    
                 beq     writeCmpaLong
+                jsr  invalidOpcode
 writeCmpaWord
                  clr.l   d3
                 clr.l   d4
@@ -1082,6 +1094,7 @@ writeAnds
                 beq     writeAndWord
                 cmp.b   #$02, d3
                 beq     writeAndLong
+                jsr  invalidOpcode
 writeAndByte
                 jsr     pushAndToBuffer
                 move.b  #$2e,   (a4)+
@@ -1134,6 +1147,7 @@ writeAdds
                 beq     writeAddLong 
                 cmp.b   #$03, d3    
                 beq     writeAdda
+                jsr  invalidOpcode
                 
 writeAddByte
                 jsr     pushAddToBuffer
